@@ -1,0 +1,37 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0
+        }
+    </style>
+    <script src="render.js"></script>
+</head>
+<body>
+<script>
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { sin, abs, floor } = Math
+
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width
+    canvas.height = height
+    render()
+}
+
+function loop () {
+    requestAnimationFrame(loop)
+    render()
+}
+window.onresize()
+loop()
+</script>
+</body>
