@@ -57,7 +57,7 @@ function memoize (fn) {
 <script src="render.js"></script>
 <script>
 let SPACING = 9
-let OFFSET = 3
+let OFFSET = -3
 let TOL = 1
 let count = 0
 let textData
@@ -87,7 +87,7 @@ const isPixelPainted = memoize((imgData, x, y) => {
 })
 
 function joinPoints (p1, p2) {
-    const offset1 = isPixelPainted(textData, p1.x, p1.y) ? OFFSET : 0
+    const offset1 = isPixelPainted(textData, p1.x, p1.y) ? OFFSET * sin(p1.x + p1.y): 0
     const offset2 = isPixelPainted(textData, p2.x, p2.y) ? OFFSET : 0
     ctx.beginPath()
     ctx.moveTo(p1.x + offset1, p1.y + offset1)
@@ -96,7 +96,6 @@ function joinPoints (p1, p2) {
 }
 
 function render () {
-    OFFSET = undefined
     ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, width, height)
 
