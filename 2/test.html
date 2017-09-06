@@ -22,6 +22,8 @@ const ctx = canvas.getContext('2d')
 document.body.appendChild(canvas)
 const { abs, floor, max, PI, sin } = Math
 const start = Date.now()
+let counter
+let last = Date.now()
 
 /*
 window.onresize = function () {
@@ -53,13 +55,23 @@ function memoize (fn) {
         return returnVal
     }
 }
+
+let TOL = 1
+function isPixelPainted (imgData, x, y) {
+    for (let i = -TOL; i <= TOL; ++i) {
+        for (let j = -TOL; j <= TOL; ++j) {
+            if (imgData.data[4 * 2 * ((y + i) * imgData.width + (x + j)) + 3] > 0) {
+                return true
+            }
+        }
+    }
+}
+
 </script>
 <script src="render.js"></script>
 <script>
 let SPACING = 9
 let OFFSET = -3
-let TOL = 1
-let count = 0
 let textData
 
 function init () {
@@ -76,23 +88,15 @@ function init () {
     textData = ctx.getImageData(0, 0, canvas.width, canvas.height) 
 }
 
-const isPixelPainted = memoize((imgData, x, y) => {
-    for (let i = -TOL; i <= TOL; ++i) {
-        for (let j = -TOL; j <= TOL; ++j) {
-            if (imgData.data[4 * ((y + i) * 2 * imgData.width + (x + j) * 2) + 3] > 0) {
-                return true
-            }
-        }
-    }
-})
+function keksin (n) {
+    n = n % (5 * PI / 2)
+    if (n < 1 * PI / 2) return sin(n)
+    if (n < 2 * PI / 2) return 1
+    return sin(n - PI / 2)
+}
 
-function joinPoints (p1, p2) {
-    const offset1 = isPixelPainted(textData, p1.x, p1.y) ? OFFSET * sin(p1.x + p1.y): 0
-    const offset2 = isPixelPainted(textData, p2.x, p2.y) ? OFFSET : 0
-    ctx.beginPath()
-    ctx.moveTo(p1.x + offset1, p1.y + offset1)
-    ctx.lineTo(p2.x + offset2, p2.y + offset2)
-    ctx.stroke()
+function kek (p) {
+    return keksin((-p.x / 8 -p.y / 4 + (counter / 10)) / 100)
 }
 
 function render () {
@@ -111,12 +115,27 @@ function render () {
     }
 }
 
+function joinPoints (p1, p2) {
+    const offset1 = isPixelPainted(textData, p1.x, p1.y) ? (OFFSET + OFFSET * kek(p1)) / 2 : 0
+    const offset2 = isPixelPainted(textData, p2.x, p2.y) ? (OFFSET + OFFSET * kek(p2)) / 2 : 0
+    ctx.beginPath()
+    ctx.moveTo(p1.x + offset1, p1.y + offset1)
+    ctx.lineTo(p2.x + offset2, p2.y + offset2)
+    ctx.stroke()
+}
 
 </script>
 <script>
 function loop () {
     requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
     render()
+    /* fps
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 20, 20)
+    */
 }
 init()
 loop()
@@ -125,9 +144,9 @@ loop()
 document.addEventListener('keypress', function (e) {
     console.log(e)
     if (e.code === "Space") {
-        // generate "shot"
+        // generate "screenshot"
         const img = new Image()
-        img.width = img.height = 600
+        img.width = img.height = width
         img.src = canvas.toDataURL()
         document.body.appendChild(img)
     }
