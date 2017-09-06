@@ -11,7 +11,7 @@ function init () {
         ctx.fillText(word, 0, 0)
     })
     ctx.restore()
-    textData = ctx.getImageData(0, 0, canvas.width, canvas.height) 
+    textData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 }
 
 function render () {
