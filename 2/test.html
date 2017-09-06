@@ -36,14 +36,15 @@ width = height = 600
 canvas.width = width * 2
 canvas.height = height * 2
 ctx.scale(2, 2)
+
+CanvasRenderingContext2D.prototype.fillCircle = function (centerX, centerY, radius) { this.beginPath()
+    this.arc(centerX, centerY, radius, 0, 2 * Math.PI, false)
+    this.fill()
+}
 </script>
 <script src="render.js"></script>
 <script>
 const POINT_SPACING = 5
-
-function isWhite (p /* pixelData */) {
-    return ((p[0] + p[1] + p[2]) != (255 * 3))
-}
 
 function renderSentence(sentence) {
     sentence.split(' ').forEach(word => {
@@ -52,24 +53,31 @@ function renderSentence(sentence) {
     })
 }
 
+function getPixelData(imgData, x, y) {
+    const index = 4 * (y * imgData.width + x)
+    return imgData.data.slice(index, index + 4)
+}
+
 function render () {
     ctx.save()
-    ctx.fillStyle = 'white'
-    ctx.fillRect(0, 0, width, height)
     ctx.fillStyle = 'black'
     ctx.font = "120px Helvetica"
     ctx.translate(20, 20)
     renderSentence('Aim for the impossible')
     ctx.restore()
 
+    const textData = ctx.getImageData(0, 0, canvas.width, canvas.height) 
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0, 0, width, height)
+
     for (let i = 0; i <= width / POINT_SPACING; ++i) {
         for (let j = 0; j <= height / POINT_SPACING; ++j) {
             const x = j * POINT_SPACING
             const y = i * POINT_SPACING
-            const pixelData = ctx.getImageData(x, y, 1, 1).data
-            if (isWhite(pixelData)) {
+            const pixelData = getPixelData(textData, x * 2, y * 2)
+            if (pixelData[3] == 255) {
                 ctx.fillStyle = 'blue'
-                ctx.fillRect(x, y, 2, 2)
+                ctx.fillRect(x, y, 1, 1)
             }
         }
     }
