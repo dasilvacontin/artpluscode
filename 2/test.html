@@ -44,7 +44,8 @@ CanvasRenderingContext2D.prototype.fillCircle = function (centerX, centerY, radi
 </script>
 <script src="render.js"></script>
 <script>
-const POINT_SPACING = 10
+let SPACING = 10
+let count = 0
 
 function renderSentence(sentence) {
     sentence.split(' ').forEach(word => {
@@ -53,14 +54,15 @@ function renderSentence(sentence) {
     })
 }
 
-function getPixelData(imgData, x, y) {
-    const index = 4 * (y * 2 * imgData.width + x * 2)
-    return imgData.data.slice(index, index + 4)
+function isPixelPainted(imgData, x, y) {
+    return (imgData.data[4 * (y * 2 * imgData.width + x * 2) + 3] > 0)
 }
 
 function render () {
     ctx.save()
+    ctx.clearRect(0, 0, width, height)
     ctx.fillStyle = 'black'
+    ctx.globalAlpha = 0.1
     ctx.font = "120px Helvetica"
     ctx.translate(20, 20)
     renderSentence('Aim for the impossible')
@@ -70,18 +72,27 @@ function render () {
     ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, width, height)
 
-    ctx.strokeStyle = 'blue'
-    for (let i = 0; i <= width / POINT_SPACING; ++i) {
-        const y = i * POINT_SPACING
-        ctx.moveTo(0, y)
-        ctx.beginPath()
-        for (let j = 0; j <= height / POINT_SPACING; ++j) {
-            const x = j * POINT_SPACING
-            const pixelData = getPixelData(textData, x, y)
-            const offset = (pixelData[3] == 255 ? -3 : 0)
-            ctx.lineTo(x + offset, y + offset)
+    ctx.strokeStyle = 'black'
+    for (let i = 0; i <= width / SPACING; ++i) {
+        for (let j = 0; j <= height / SPACING; ++j) {
+            const x = j * SPACING
+            const y = i * SPACING
+            const leftPixelOffset = (isPixelPainted(textData, x - SPACING, y) ? -3 : 0)
+            const currentPixelOffset = (isPixelPainted(textData, x, y) ? -3 : 0)
+            const topPixelOffset = (isPixelPainted(textData, x, y - SPACING) ? -3 : 0)
+            if (x > 0) {
+                ctx.beginPath()
+                ctx.moveTo(x - SPACING + leftPixelOffset, y + leftPixelOffset) 
+                ctx.lineTo(x + currentPixelOffset, y + currentPixelOffset)
+                ctx.stroke()
+            }
+            if (y > 0) {
+                ctx.beginPath()
+                ctx.moveTo(x + topPixelOffset, y - SPACING + topPixelOffset) 
+                ctx.lineTo(x + currentPixelOffset, y + currentPixelOffset)
+                ctx.stroke()
+            }
         }
-        ctx.stroke()
     }
 }
 </script>
