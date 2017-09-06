@@ -21,6 +21,7 @@ const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
 document.body.appendChild(canvas)
 const { abs, floor, max, PI, sin } = Math
+const start = Date.now()
 
 /*
 window.onresize = function () {
@@ -32,7 +33,7 @@ window.onresize = function () {
 }
 window.onresize()
 */
-width = height = 600
+width = height = floor(600 / 9) * 9
 canvas.width = width * 2
 canvas.height = height * 2
 ctx.scale(2, 2)
@@ -41,67 +42,85 @@ CanvasRenderingContext2D.prototype.fillCircle = function (centerX, centerY, radi
     this.arc(centerX, centerY, radius, 0, 2 * Math.PI, false)
     this.fill()
 }
+
+function memoize (fn) {
+    const cache = new Map()
+    return function () {
+        const key = Array.from(arguments).join('@')
+        if (cache.has(key)) return cache.get(key)
+        const returnVal = fn.apply(fn, arguments)
+        cache.set(key, returnVal)
+        return returnVal
+    }
+}
 </script>
 <script src="render.js"></script>
 <script>
-let SPACING = 10
+let SPACING = 9
+let OFFSET = 3
+let TOL = 1
 let count = 0
+let textData
 
-function renderSentence(sentence) {
-    sentence.split(' ').forEach(word => {
+function init () {
+    ctx.save()
+    ctx.fillStyle = 'black'
+    ctx.globalAlpha = 0.1
+    ctx.font = '120px Helvetica'
+    ctx.translate(20, 20)
+    ;'Aim for the impossible'.split(' ').forEach(word => {
         ctx.translate(0, 120)
         ctx.fillText(word, 0, 0)
     })
+    ctx.restore()
+    textData = ctx.getImageData(0, 0, canvas.width, canvas.height) 
 }
 
-function isPixelPainted(imgData, x, y) {
-    return (imgData.data[4 * (y * 2 * imgData.width + x * 2) + 3] > 0)
+const isPixelPainted = memoize((imgData, x, y) => {
+    for (let i = -TOL; i <= TOL; ++i) {
+        for (let j = -TOL; j <= TOL; ++j) {
+            if (imgData.data[4 * ((y + i) * 2 * imgData.width + (x + j) * 2) + 3] > 0) {
+                return true
+            }
+        }
+    }
+})
+
+function joinPoints (p1, p2) {
+    const offset1 = isPixelPainted(textData, p1.x, p1.y) ? OFFSET : 0
+    const offset2 = isPixelPainted(textData, p2.x, p2.y) ? OFFSET : 0
+    ctx.beginPath()
+    ctx.moveTo(p1.x + offset1, p1.y + offset1)
+    ctx.lineTo(p2.x + offset2, p2.y + offset2)
+    ctx.stroke()
 }
 
 function render () {
-    ctx.save()
-    ctx.clearRect(0, 0, width, height)
-    ctx.fillStyle = 'black'
-    ctx.globalAlpha = 0.1
-    ctx.font = "120px Helvetica"
-    ctx.translate(20, 20)
-    renderSentence('Aim for the impossible')
-    ctx.restore()
-
-    const textData = ctx.getImageData(0, 0, canvas.width, canvas.height) 
+    OFFSET = undefined
     ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, width, height)
 
-    ctx.strokeStyle = 'black'
     for (let i = 0; i <= width / SPACING; ++i) {
         for (let j = 0; j <= height / SPACING; ++j) {
             const x = j * SPACING
             const y = i * SPACING
-            const leftPixelOffset = (isPixelPainted(textData, x - SPACING, y) ? -3 : 0)
-            const currentPixelOffset = (isPixelPainted(textData, x, y) ? -3 : 0)
-            const topPixelOffset = (isPixelPainted(textData, x, y - SPACING) ? -3 : 0)
-            if (x > 0) {
-                ctx.beginPath()
-                ctx.moveTo(x - SPACING + leftPixelOffset, y + leftPixelOffset) 
-                ctx.lineTo(x + currentPixelOffset, y + currentPixelOffset)
-                ctx.stroke()
-            }
-            if (y > 0) {
-                ctx.beginPath()
-                ctx.moveTo(x + topPixelOffset, y - SPACING + topPixelOffset) 
-                ctx.lineTo(x + currentPixelOffset, y + currentPixelOffset)
-                ctx.stroke()
-            }
+
+            ctx.strokeStyle = 'black'
+            if (x > 0) joinPoints({x: (x - SPACING), y: y}, {x: x, y: y})
+            if (y > 0) joinPoints({x: x, y: (y - SPACING)}, {x: x, y: y})
         }
     }
 }
+
+
 </script>
 <script>
 function loop () {
     requestAnimationFrame(loop)
     render()
 }
-render()
+init()
+loop()
 
 // screenshot generator
 document.addEventListener('keypress', function (e) {
