@@ -44,7 +44,7 @@ CanvasRenderingContext2D.prototype.fillCircle = function (centerX, centerY, radi
 </script>
 <script src="render.js"></script>
 <script>
-const POINT_SPACING = 5
+const POINT_SPACING = 10
 
 function renderSentence(sentence) {
     sentence.split(' ').forEach(word => {
@@ -54,7 +54,7 @@ function renderSentence(sentence) {
 }
 
 function getPixelData(imgData, x, y) {
-    const index = 4 * (y * imgData.width + x)
+    const index = 4 * (y * 2 * imgData.width + x * 2)
     return imgData.data.slice(index, index + 4)
 }
 
@@ -70,16 +70,18 @@ function render () {
     ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, width, height)
 
+    ctx.strokeStyle = 'blue'
     for (let i = 0; i <= width / POINT_SPACING; ++i) {
+        const y = i * POINT_SPACING
+        ctx.moveTo(0, y)
+        ctx.beginPath()
         for (let j = 0; j <= height / POINT_SPACING; ++j) {
             const x = j * POINT_SPACING
-            const y = i * POINT_SPACING
-            const pixelData = getPixelData(textData, x * 2, y * 2)
-            if (pixelData[3] == 255) {
-                ctx.fillStyle = 'blue'
-                ctx.fillRect(x, y, 1, 1)
-            }
+            const pixelData = getPixelData(textData, x, y)
+            const offset = (pixelData[3] == 255 ? -3 : 0)
+            ctx.lineTo(x + offset, y + offset)
         }
+        ctx.stroke()
     }
 }
 </script>
