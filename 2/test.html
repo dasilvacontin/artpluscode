@@ -45,6 +45,13 @@ function isWhite (p /* pixelData */) {
     return ((p[0] + p[1] + p[2]) != (255 * 3))
 }
 
+function renderSentence(sentence) {
+    sentence.split(' ').forEach(word => {
+        ctx.translate(0, 120)
+        ctx.fillText(word, 0, 0)
+    })
+}
+
 function render () {
     ctx.save()
     ctx.fillStyle = 'white'
@@ -52,14 +59,7 @@ function render () {
     ctx.fillStyle = 'black'
     ctx.font = "120px Helvetica"
     ctx.translate(20, 20)
-    ctx.translate(0, 120)
-    ctx.fillText("Aim", 0, 0)
-    ctx.translate(0, 120)
-    ctx.fillText("for", 0, 0)
-    ctx.translate(0, 120)
-    ctx.fillText("the", 0, 0)
-    ctx.translate(0, 120)
-    ctx.fillText("impossible", 0, 0)
+    renderSentence('Aim for the impossible')
     ctx.restore()
 
     for (let i = 0; i <= width / POINT_SPACING; ++i) {
@@ -68,8 +68,8 @@ function render () {
             const y = i * POINT_SPACING
             const pixelData = ctx.getImageData(x, y, 1, 1).data
             if (isWhite(pixelData)) {
-                ctx.fillStyle = 'red'
-                ctx.fillRect(x, y, 1, 1)
+                ctx.fillStyle = 'blue'
+                ctx.fillRect(x, y, 2, 2)
             }
         }
     }
