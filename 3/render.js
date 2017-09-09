@@ -37,43 +37,54 @@ fetch('mutemath - vitals.mp3', { mode: 'cors' })
     sourceNode.start(0)
 })
 
+const MAX_SAMPLES = 100
+
 const arrays = []
 jsNode.onaudioprocess = function () {
     const array = new Uint8Array(analyser.frequencyBinCount)
     analyser.getByteFrequencyData(array)
     arrays.unshift(array)
+    if (arrays.length > MAX_SAMPLES) arrays.pop()
 
     ctx.fillStyle = '#f3fdff'
+    ctx.fillStyle = 'black'
+    ctx.fillStyle = '#5fd2a9'
     ctx.fillRect(0, 0, width, height)
-    const barWidth = width / 2 / array.length
+    // ctx.clearRect(0, 0, width, height)
+    const barWidth = width / array.length
 
     ctx.save()
+    ctx.translate(75, - MAX_SAMPLES / 2)
+    ctx.translate(width / 2, height / 2)
+    ctx.scale(0.5, 0.5)
+    ctx.translate(- width, - height)
     ctx.lineWidth = 3
-    ctx.translate(0, -200)
-    for (let k = 0; k < Math.min(arrays.length, 5); ++k) {
+
+    for (let k = MAX_SAMPLES; k >= 0; --k) {
         const array = arrays[k]
+        ctx.translate(0, 2)
+        if (!array) continue
         for (let i = 0; i < array.length; ++i) {
             const val = array[i]
             // ctx.fillRect(i * barWidth, height, barWidth, (-array[i]/255) * height)
-            ctx.strokeStyle = 'lightgray'
+            ctx.strokeStyle = 'white'
             ctx.beginPath()
             ctx.moveTo(i * barWidth + 257, height - 2)
-            ctx.lineTo(i * barWidth + 258 - val, height - 1 - val)
+            ctx.lineTo(i * barWidth + 257 - val, height - 2 - val)
             ctx.stroke()
+
             ctx.strokeStyle = '#69E8BB'
             ctx.beginPath()
             ctx.moveTo(i * barWidth + 255, height)
             ctx.lineTo(i * barWidth + 255 - val, height - val)
             ctx.stroke()
-
-            ctx.fillStyle = 'white'
-            ctx.fillRect(i * barWidth + 255 - val, height - val, 3, 3)
-            ctx.translate(0, 2)
         }
     }
+    ctx.fillStyle = 'white'
+    ctx.font = 'bold 20px Helvetica'
+    ctx.fillText('MUTEMATH - VITALS', 255 - 2, height + 30)
     ctx.restore()
 }
-
 
 function render () {
 
