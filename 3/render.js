@@ -37,7 +37,9 @@ fetch('mutemath - vitals.mp3', { mode: 'cors' })
     sourceNode.start(0)
 })
 
-const MAX_SAMPLES = 100
+const MAX_SAMPLES = 300
+const GREEN = '#69E8BB'
+// http://www.smartjava.org/content/exploring-html5-web-audio-visualizing-sound
 
 const arrays = []
 jsNode.onaudioprocess = function () {
@@ -49,6 +51,7 @@ jsNode.onaudioprocess = function () {
     ctx.fillStyle = '#f3fdff'
     ctx.fillStyle = 'black'
     ctx.fillStyle = '#5fd2a9'
+    ctx.fillStyle = 'white'
     ctx.fillRect(0, 0, width, height)
     // ctx.clearRect(0, 0, width, height)
     const barWidth = width / array.length
@@ -70,17 +73,17 @@ jsNode.onaudioprocess = function () {
             ctx.strokeStyle = 'white'
             ctx.beginPath()
             ctx.moveTo(i * barWidth + 257, height - 2)
-            ctx.lineTo(i * barWidth + 257 - val, height - 2 - val)
+            ctx.lineTo(i * barWidth + 257 - val / 2, height - 2 - val)
             ctx.stroke()
 
-            ctx.strokeStyle = '#69E8BB'
+            ctx.strokeStyle = GREEN
             ctx.beginPath()
             ctx.moveTo(i * barWidth + 255, height)
-            ctx.lineTo(i * barWidth + 255 - val, height - val)
+            ctx.lineTo(i * barWidth + 255 - val / 2, height - val)
             ctx.stroke()
         }
     }
-    ctx.fillStyle = 'white'
+    ctx.fillStyle = GREEN
     ctx.font = 'bold 20px Helvetica'
     ctx.fillText('MUTEMATH - VITALS', 255 - 2, height + 30)
     ctx.restore()
