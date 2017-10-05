@@ -10,10 +10,12 @@
         canvas {
             width: 600px;
             height: 600px;
+            border: 1px solid black;
         }
     </style>
 </head>
 <body>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
 <script>
 
 let width, height
@@ -73,20 +75,24 @@ function isPixelPainted (imgData, x, y) {
 <script>
 </script>
 <script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 0, 0)
+}
+
 function loop () {
     requestAnimationFrame(loop)
     counter = Date.now() - start
     delta = Date.now() - last
     last = Date.now()
-    render()
-    /* fps */
-    //ctx.clearRect(0, 0, 50, 20)
-    ctx.fillStyle = 'blue'
-    ctx.fillText(delta, 0, 0)
-    /* */
+    window.render && render()
+    if (FPS_ENABLED) renderFPS()
 }
 window.init && init()
 loop()
+
 
 // screenshot generator
 document.addEventListener('keypress', function (e) {

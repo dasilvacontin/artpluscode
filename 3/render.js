@@ -16,8 +16,8 @@ number of points per per sample. e.g. 16-bit digital
 
 const audioContext = new AudioContext()
 
-const jsNode = audioContext.createScriptProcessor(2048, 1, 1)
-jsNode.connect(audioContext.destination)
+const processorNode = audioContext.createScriptProcessor(2048, 1, 1)
+processorNode.connect(audioContext.destination)
 
 const analyser = audioContext.createAnalyser()
 analyser.smoothingTimeConstant = 0.3
@@ -26,7 +26,7 @@ analyser.fftSize = 1024
 const sourceNode = audioContext.createBufferSource()
 sourceNode.connect(audioContext.destination)
 sourceNode.connect(analyser)
-analyser.connect(jsNode)
+analyser.connect(processorNode)
 
 const req = new XMLHttpRequest()
 fetch('mutemath - vitals.mp3', { mode: 'cors' })
@@ -37,58 +37,74 @@ fetch('mutemath - vitals.mp3', { mode: 'cors' })
     sourceNode.start(0)
 })
 
-const MAX_SAMPLES = 300
-const GREEN = '#69E8BB'
+const colors = {
+    primary: '#547cc8',
+    secondary: '#c2f7e4',
+    background: '#173d72'
+}
+
+const params = {
+    title: 'MUTEMATH  -  VITALS',
+    tilt: 0.5
+}
+
+function init () {
+    ctx.fillStyle = colors.background
+    ctx.fillRect(0,0,width,height)
+}
+
 // http://www.smartjava.org/content/exploring-html5-web-audio-visualizing-sound
+processorNode.onaudioprocess = function () {
+    const sample = new Uint8Array(analyser.frequencyBinCount)
+    analyser.getByteFrequencyData(sample)
 
-const arrays = []
-jsNode.onaudioprocess = function () {
-    const array = new Uint8Array(analyser.frequencyBinCount)
-    analyser.getByteFrequencyData(array)
-    arrays.unshift(array)
-    if (arrays.length > MAX_SAMPLES) arrays.pop()
+    // translate old musics bars
+    const dpx = 2
+    ctx.drawImage(canvas,
+        /* source: */ 0,  0, width*dpx,(3*height/4+4)*dpx,
+        /* dest:   */ 0, -2, width,    (3*height/4+4)
+    )
 
-    ctx.fillStyle = '#f3fdff'
-    ctx.fillStyle = 'black'
-    ctx.fillStyle = '#5fd2a9'
-    ctx.fillStyle = 'white'
-    ctx.fillRect(0, 0, width, height)
-    // ctx.clearRect(0, 0, width, height)
-    const barWidth = width / array.length
-
+    // position origin to bottom half of screen
     ctx.save()
-    ctx.translate(75, - MAX_SAMPLES / 2)
-    ctx.translate(width / 2, height / 2)
-    ctx.scale(0.5, 0.5)
-    ctx.translate(- width, - height)
-    ctx.lineWidth = 3
+    ctx.translate(width/2, 3*height/4)
+    ctx.scale(.5,.5)
+    ctx.translate(-width*0.7/2 + 256/5, 0)
 
-    for (let k = MAX_SAMPLES; k >= 0; --k) {
-        const array = arrays[k]
-        ctx.translate(0, 2)
-        if (!array) continue
-        for (let i = 0; i < array.length; ++i) {
-            const val = array[i]
-            // ctx.fillRect(i * barWidth, height, barWidth, (-array[i]/255) * height)
-            ctx.strokeStyle = 'white'
-            ctx.beginPath()
-            ctx.moveTo(i * barWidth + 257, height - 2)
-            ctx.lineTo(i * barWidth + 257 - val / 2, height - 2 - val)
-            ctx.stroke()
+    const barWidth = (width / sample.length)
+    for (let x = 0; x < sample.length; ++x) {
+        // frequency data for current bar
+        const val = sample[x]
 
-            ctx.strokeStyle = GREEN
-            ctx.beginPath()
-            ctx.moveTo(i * barWidth + 255, height)
-            ctx.lineTo(i * barWidth + 255 - val / 2, height - val)
-            ctx.stroke()
-        }
+        // draw right side of bar
+        ctx.strokeStyle = colors.secondary
+        ctx.lineWidth = 3
+        ctx.beginPath()
+        ctx.moveTo(x * barWidth + 2, -2)
+        ctx.lineTo(x * barWidth + 2 - val * params.tilt, -2 -val)
+        ctx.stroke()
+
+        // draw front side of bar
+        ctx.strokeStyle = colors.primary
+        ctx.beginPath()
+        ctx.moveTo(x * barWidth, 0)
+        ctx.lineTo(x * barWidth - val * params.tilt, -val)
+        ctx.stroke()
     }
-    ctx.fillStyle = GREEN
+
+    // draw song title
+    ctx.fillStyle = colors.background
+    ctx.fillRect(-10, 10, 300, 100)
+    ctx.fillStyle = colors.primary
     ctx.font = 'bold 20px Helvetica'
-    ctx.fillText('MUTEMATH - VITALS', 255 - 2, height + 30)
+    ctx.fillText(params.title, -2, 30)
     ctx.restore()
 }
 
-function render () {
-
-}
+// parameter edition UI
+const gui = new dat.GUI()
+gui.add(params, 'tilt')
+gui.add(params, 'title')
+gui.addColor(colors, 'primary')
+gui.addColor(colors, 'secondary')
+gui.addColor(colors, 'background').onChange(init)
