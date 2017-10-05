@@ -37,10 +37,28 @@ fetch('mutemath - vitals.mp3', { mode: 'cors' })
     sourceNode.start(0)
 })
 
-const colors = {
-    primary: '#547cc8',
-    secondary: '#c2f7e4',
-    background: '#173d72'
+let colors = (localStorage.colors && JSON.parse(localStorage.colors)) || {
+    primary: '#6970e8',
+    secondary: '#ffd9fa',
+    background: '#2ae1ff'
+}
+
+colors = {
+    primary: '#7081fa',
+    secondary: '#def5ff',
+    background: '#aad7ff'
+}
+
+colors = {
+    primary: '#7384ff',
+    secondary: '#def5ff',
+    background: '#a8d5fc'
+}
+
+colors = {
+    primary: '#5f72ff',
+    secondary: '#8cf1ff',
+    background: '#ffffff'
 }
 
 const params = {
@@ -105,6 +123,10 @@ processorNode.onaudioprocess = function () {
 const gui = new dat.GUI()
 gui.add(params, 'tilt')
 gui.add(params, 'title')
-gui.addColor(colors, 'primary')
-gui.addColor(colors, 'secondary')
-gui.addColor(colors, 'background').onChange(init)
+gui.addColor(colors, 'primary').onChange(saveColors)
+gui.addColor(colors, 'secondary').onChange(saveColors)
+gui.addColor(colors, 'background').onChange(() => {init();saveColors()})
+
+function saveColors () {
+    localStorage.setItem('colors', JSON.stringify(colors))
+}
