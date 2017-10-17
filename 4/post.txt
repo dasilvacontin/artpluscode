@@ -17,3 +17,6 @@ I hope you enjoy this piece and its "bloopers". Let me know if there's any aspec
 > As usual, you can find the source code (and additional bloopers) for all my #art+#code experiments at https://github.com/dasilvacontin/artpluscode.
 .
 #webart #videoart #artwork #procedural #art #code #song #slitscan #piece #mutemath #vitals #pixels #frequencies #intensity #javascript #web #jsart #html5 #canvas #audio #spectrum #visualization #wave #shape #2d #3d #realtime #sourcecode #github
+
+// how it works
+// datGUI
