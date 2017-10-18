@@ -1,0 +1,172 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0
+        }
+        canvas {
+            width: 600px;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
+<script>
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { abs, floor, max, PI, sin } = Math
+const start = Date.now()
+let counter
+let last = Date.now()
+
+/*
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width * 2
+    canvas.height = height * 2
+    ctx.scale(2, 2)
+}
+window.onresize()
+*/
+
+width = height = 600
+/*
+width = window.innerWidth
+height = window.innerHeight
+/**/
+canvas.style.width = canvas.style.height = width
+canvas.width = width * 2
+canvas.height = height * 2
+ctx.scale(2, 2)
+
+CanvasRenderingContext2D.prototype.fillCircle = function (centerX, centerY, radius) { this.beginPath()
+    this.arc(centerX, centerY, radius, 0, 2 * Math.PI, false)
+    this.fill()
+}
+
+function memoize (fn) {
+    const cache = new Map()
+    return function () {
+        const key = Array.from(arguments).join('@')
+        if (cache.has(key)) return cache.get(key)
+        const returnVal = fn.apply(fn, arguments)
+        cache.set(key, returnVal)
+        return returnVal
+    }
+}
+
+let TOL = 1
+function isPixelPainted (imgData, x, y) {
+    for (let i = -TOL; i <= TOL; ++i) {
+        for (let j = -TOL; j <= TOL; ++j) {
+            if (imgData.data[4 * 2 * ((y + i) * imgData.width + (x + j)) + 3] > 0) {
+                return true
+            }
+        }
+    }
+}
+
+</script>
+<script src="render.js"></script>
+<script>
+</script>
+<script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 0, 0)
+}
+
+function loop () {
+    requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
+    window.render && render()
+    if (FPS_ENABLED) renderFPS()
+}
+ctx.fillStyle = 'white'
+ctx.fillRect(0,0,width,height)
+window.init && init()
+loop()
+
+
+// screenshot generator
+document.addEventListener('keypress', function (e) {
+    console.log(e)
+    if (e.code === "Space") {
+        // generate "screenshot"
+        const img = new Image()
+        img.width = img.height = width
+        img.src = canvas.toDataURL()
+        document.body.appendChild(img)
+    }
+})
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+</script>
+</body>
