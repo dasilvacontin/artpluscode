@@ -18,11 +18,11 @@ const params = {
 }
 
 const gui = new dat.GUI()
-gui.addColor(params, 'bg')
-gui.addColor(params, 'strokeStyle')
+gui.addColor(params, 'bg').onChange(init)
+gui.addColor(params, 'strokeStyle').onChange(init)
 
 for (let param in params) {
-    gui.add(params, param)
+    gui.add(params, param).onChange(init)
 }
 
 function renderSquare (rot) {
@@ -78,8 +78,6 @@ function renderLines (rot, rot2) {
 }
 
 let count = 6
-let i = 0
-let j = 0
 
 function init () {
     ctx.fillStyle = params.bg
@@ -93,37 +91,36 @@ function init () {
         params.signatureMargin,
         height - params.signatureMargin)
     */
+    ctx.save()
     ctx.scale(1 / count, 1 / count)
+    renderStill()
+    ctx.restore()
 }
 
-function render () {
-    ctx.save()
-    ctx.translate(width / 2, height / 2)
+function renderStill () {
+    for (let i = 0; i < count; ++i) {
+        ctx.save()
+        for (let j = 0; j < count; ++j) {
+            params.rot = 0.1 + (6*i+j) * 2 * Math.PI / 35
+            params.rot2 = 0.1 + (6*i+j) * 4 * Math.PI / 35
 
-    ctx.translate(0, params.columnHeight / 2)
-    renderSquare(params.rot)
+            ctx.save()
+            ctx.translate(width / 2, height / 2)
 
-    ctx.translate(0, - params.columnHeight / 2)
-    renderLines(params.rot, params.rot2)
+            ctx.translate(0, params.columnHeight / 2)
+            renderSquare(params.rot)
 
-    ctx.translate(0, - params.columnHeight / 2)
-    renderSquare(params.rot2)
+            ctx.translate(0, - params.columnHeight / 2)
+            renderLines(params.rot, params.rot2)
 
-    ctx.restore()
+            ctx.translate(0, - params.columnHeight / 2)
+            renderSquare(params.rot2)
+            ctx.restore()
 
-    j++;
-    ctx.translate(width, 0)
-    if (j > count) {
-        j = 0;
-        i++;
-        ctx.translate(-(1+count)*width, height)
+            ctx.translate(width, 0)
+        }
+        ctx.restore()
+        ctx.translate(0, height)
     }
-
-    /*
-    const mult = (2 * Math.PI / (count*count)) / 0.005
-    params.rot += params.inc * mult
-    params.rot2 += params.inc2 * mult
-    */
-    params.rot = 0.1 + (6*i+j) * 2 * Math.PI / 35
-    params.rot2 = 0.1 + (6*i+j) * 4 * Math.PI / 35
+    ctx.restore()
 }
