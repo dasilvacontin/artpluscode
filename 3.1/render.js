@@ -100,9 +100,9 @@ function init () {
 function renderStill () {
     for (let i = 0; i < count; ++i) {
         ctx.save()
-        for (let j = 0; j < count; ++j) {
-            params.rot = 0.1 + (6*i+j) * 2 * Math.PI / 35
-            params.rot2 = 0.1 + (6*i+j) * 4 * Math.PI / 35
+        for (let j = 0; j < count * 3 - 2; ++j) {
+            params.rot =  0.1 + ((count*3-2)*i+j) * 2 * Math.PI / ((count*3-2)*count - 1)
+            params.rot2 = 0.1 + ((count*3-2)*i+j) * 4 * Math.PI / ((count*3-2)*count - 1)
 
             ctx.save()
             ctx.translate(width / 2, height / 2)
@@ -117,7 +117,7 @@ function renderStill () {
             renderSquare(params.rot2)
             ctx.restore()
 
-            ctx.translate(width, 0)
+            ctx.translate(width / 3, 0)
         }
         ctx.restore()
         ctx.translate(0, height)
