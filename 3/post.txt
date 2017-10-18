@@ -5,3 +5,5 @@ I wanted to visualize a full twist, so I made this. I had also been looking forw
 And sorry for the delay, but what was gonna be #art+#code #3 is still waiting on a 3rd party to be published. 😓
 .
 > As usual, link in bio if you want to interact with it. You can also find the source code (and additional bloopers) for all my #art+#code experiments at https://github.com/dasilvacontin/artpluscode.
+
+#webart #videoart #artwork #procedural #art #code #piece #pixels #prisma #twist #visualize #visualization #javascript #web #jsart #html5 #canvas #shape #2d #3d #realtime #sourcecode #github

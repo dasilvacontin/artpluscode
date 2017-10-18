@@ -29,7 +29,7 @@ sourceNode.connect(analyser)
 analyser.connect(processorNode)
 
 const req = new XMLHttpRequest()
-fetch('P  A  R  I  S.mp3', { mode: 'cors' })
+fetch('mutemath - vitals.mp3', { mode: 'cors' })
 .then(response => response.arrayBuffer())
 .then(buffer => audioContext.decodeAudioData(buffer))
 .then(audioBuffer => {
@@ -62,7 +62,7 @@ colors = {
 }
 
 const params = {
-    title: 'P  A  R  I  S.mp3',
+    title: 'MUTEMATH - VITALS',
     tilt: 0.5
 }
 
@@ -84,12 +84,14 @@ processorNode.onaudioprocess = function () {
     )
 
     // position origin to bottom half of screen
+    const spectrumWidth = 900
     ctx.save()
     ctx.translate(width/2, 3*height/4)
     ctx.scale(.5,.5)
-    ctx.translate(-width*0.7/2 + 256/5, 0)
+    ctx.translate(-spectrumWidth*0.67/2 + 256/5, 0)
 
-    const barWidth = (width / sample.length)
+
+    const barWidth = (spectrumWidth / sample.length)
     for (let x = 0; x < sample.length; ++x) {
         // frequency data for current bar
         const val = sample[x]

@@ -37,7 +37,10 @@ window.onresize = function () {
 window.onresize()
 */
 width = height = floor(600 / 9) * 9
-canvas.style.width = canvas.style.height = width
+width = window.innerWidth
+height = window.innerHeight
+canvas.style.width = width
+canvas.style.height = height
 canvas.width = width * 2
 canvas.height = height * 2
 ctx.scale(2, 2)
@@ -74,7 +77,7 @@ function isPixelPainted (imgData, x, y) {
 <script>
 </script>
 <script>
-const FPS_ENABLED = false
+let FPS_ENABLED = false
 function renderFPS () {
     ctx.clearRect(0, 0, 50, 20)
     ctx.fillStyle = 'blue'
@@ -99,7 +102,8 @@ document.addEventListener('keypress', function (e) {
     if (e.code === "Space") {
         // generate "screenshot"
         const img = new Image()
-        img.width = img.height = width
+        img.width = width
+        img.height = height
         img.src = canvas.toDataURL()
         document.body.appendChild(img)
     }
