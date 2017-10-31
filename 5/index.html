@@ -1,0 +1,196 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0
+        }
+        canvas {
+            width: 600px;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
+<script>
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { abs, floor, max, PI, sin } = Math
+const start = Date.now()
+let counter
+let last = Date.now()
+
+/*
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width * 2
+    canvas.height = height * 2
+    ctx.scale(2, 2)
+}
+window.onresize()
+*/
+
+width = height = 600
+/*
+width = window.innerWidth
+height = window.innerHeight
+/**/
+canvas.style.width = canvas.style.height = width
+canvas.width = width * 2
+canvas.height = height * 2
+ctx.scale(2, 2)
+</script>
+<!--<script src="render.js"></script>-->
+<script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 20, 20)
+}
+
+function loop () {
+    requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
+    window.render && render()
+    if (FPS_ENABLED) renderFPS()
+}
+ctx.fillStyle = 'white'
+ctx.fillRect(0,0,width,height)
+window.init && init()
+loop()
+
+
+// screenshot generator
+document.addEventListener('keypress', function (e) {
+    console.log(e)
+    if (e.code === "Space") {
+        // generate "screenshot"
+        const img = new Image()
+        img.width = img.height = width
+        img.src = canvas.toDataURL()
+        document.body.appendChild(img)
+    }
+})
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const params = {
+    bgColor: '#34f3ff',
+    firstColor: '#fffd00',
+    firstLimit: 38,
+    secondColor: '#ff9e00',
+    secondLimit: 84,
+    thirdColor: '#ffffff',
+    heightMult: 0.4,
+    edge: 5
+}
+
+let t = 0
+function render () {
+    t++
+    ctx.fillStyle = params.bgColor
+    ctx.fillRect(0, 0, width, height)
+    ctx.save()
+    ctx.translate(width / params.edge / 2, (4/7)*height / params.edge)
+
+    for (let i = 0; i <= params.edge; i++) {
+        ctx.save()
+        for(let j = 0; j < params.edge; j++) {
+            for (let k = 0; k < 100; k++) {
+                ctx.fillStyle = 'orange'
+                ctx.beginPath()
+                if (k < params.firstLimit) ctx.fillStyle = params.firstColor
+                else if (k < params.secondLimit) ctx.fillStyle = params.secondColor
+                else ctx.fillStyle = params.thirdColor
+                const height = (1.35 + 0.8 * sin(i+j+t/10))
+                ctx.arc(
+                    0,
+                    0.5*((width/params.edge)/50)*(-k * params.heightMult) * height * 0.5,
+                    ((width / params.edge) / 50) * ((k) => 50 - k/4)(k) * 0.1 * (1 + (2 / height) * 0.2),
+                    0, 2*PI
+                )
+                ctx.fill()
+            }
+            ctx.translate(width / params.edge, 0)
+        }
+        ctx.restore()
+        ctx.translate(0, height / params.edge)
+    }
+
+    ctx.restore()
+}
+</script>
+<script>
+const gui = new dat.GUI()
+for (let param in params) {
+    const value = params[param]
+    const isColor = (typeof value === 'string' && value[0] === '#')
+    if (isColor) gui.addColor(params, param)
+    else gui.add(params, param)
+}
+</script>
+</body>
