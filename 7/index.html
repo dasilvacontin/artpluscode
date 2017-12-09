@@ -160,6 +160,7 @@ const params = {
     background: '#f8f8f8',
     offset: 10,
     weight: 0.5,
+    fillWeight: 3,
     fillDisplacement: 5,
     displacementError: 2
 }
@@ -167,7 +168,7 @@ const params = {
 function render () {
     const {
         background, edge, offset, weight,
-        fillDisplacement, displacementError
+        fillDisplacement, displacementError, fillWeight
     } = params
     
     ctx.fillStyle = background
@@ -191,16 +192,17 @@ function render () {
         const currP = points[i % points.length]
         const nextP = points[(i+1) % points.length]
         ctx.beginPath()
-        ctx.moveTo(currP.x - offset + random()*offset,
-                   currP.y - offset + random()*offset)
-        ctx.lineTo(nextP.x - offset + random()*offset,
-                   nextP.y - offset + random()*offset)
+        ctx.moveTo(currP.x + randomError(offset),
+                   currP.y + randomError(offset))
+        ctx.lineTo(nextP.x + randomError(offset),
+                   nextP.y + randomError(offset))
         ctx.stroke()
     }
 
     let upIt = 0
     let bottomIt = 0
     ctx.strokeStyle = 'blue'
+    ctx.lineWidth = fillWeight
     ctx.beginPath()
     ctx.moveTo(-edge/2 + randomError(displacementError),
                -edge/2 + randomError(displacementError))
@@ -221,7 +223,7 @@ function render () {
                            -edge/2 + randomError(displacementError))
             } else {
                 ctx.lineTo( edge/2 + randomError(displacementError),
-                            -edge/2 + upIt - edge)
+                           -edge/2 + upIt - edge)
             }
         }
     }
@@ -232,6 +234,9 @@ function render () {
 document.addEventListener('mousemove', (e) => {
     // params.offset = (e.pageX/window.innerWidth) * 50
     // params.weight = (e.pageY/window.innerHeight) * 20
+    //params.fillDisplacement =  0.01 + (e.pageX/window.innerWidth) * 50
+    params.fillWeight = 0.01 + (e.pageY/window.innerHeight) * 20
+    params.fillDisplacement =  0.01 + (e.pageX/window.innerWidth) * 50
 })
 </script>
     
