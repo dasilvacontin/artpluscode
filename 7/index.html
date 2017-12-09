@@ -150,15 +150,25 @@ document.addEventListener('keypress', function (e) {
 
 
 <script>
+
+function randomError (range) {
+    return -range/2 + Math.random()*range
+}
+
 const params = {
     edge: width/2,
     background: '#f8f8f8',
-    offset: 5,
-    weight: 5
+    offset: 10,
+    weight: 0.5,
+    fillDisplacement: 5,
+    displacementError: 2
 }
 // actual art code here
 function render () {
-    const { background, edge, offset, weight } = params
+    const {
+        background, edge, offset, weight,
+        fillDisplacement, displacementError
+    } = params
     
     ctx.fillStyle = background
     ctx.fillRect(0,0,width,height)
@@ -172,10 +182,13 @@ function render () {
 
     ctx.strokeStyle = 'black'
     ctx.lineWidth = weight
+    ctx.lineCap = 'round'
+
     ctx.save()
+    ctx.globalAlpha = 0.25
     ctx.translate(width/2,height/2)
-    for (let i = 0; i < points.length; ++i) {
-        const currP = points[i]
+    for (let i = 0; i < points.length * 20; ++i) {
+        const currP = points[i % points.length]
         const nextP = points[(i+1) % points.length]
         ctx.beginPath()
         ctx.moveTo(currP.x - offset + random()*offset,
@@ -184,14 +197,44 @@ function render () {
                    nextP.y - offset + random()*offset)
         ctx.stroke()
     }
+
+    let upIt = 0
+    let bottomIt = 0
+    ctx.strokeStyle = 'blue'
+    ctx.beginPath()
+    ctx.moveTo(-edge/2 + randomError(displacementError),
+               -edge/2 + randomError(displacementError))
+    while ((upIt < edge*2) && (bottomIt < edge*2)) {
+        if (bottomIt < upIt) {
+            bottomIt += fillDisplacement + randomError(displacementError)
+            if (bottomIt < edge) {
+                ctx.lineTo(-edge/2 + randomError(displacementError),
+                           -edge/2 + bottomIt)
+            } else {
+                ctx.lineTo(-edge/2 + bottomIt - edge/2,
+                            edge/2 + randomError(displacementError))
+            }
+        } else {
+            upIt += fillDisplacement + randomError(displacementError)
+            if (upIt < edge) {
+                ctx.lineTo(-edge/2 + upIt,
+                           -edge/2 + randomError(displacementError))
+            } else {
+                ctx.lineTo( edge/2 + randomError(displacementError),
+                            edge/2 + upIt - edge/2)
+            }
+        }
+    }
+    ctx.stroke()
     ctx.restore()
 }
 
 document.addEventListener('mousemove', (e) => {
-    params.offset = (e.pageX/window.innerWidth) * 20
-    params.weight = (e.pageY/window.innerHeight) * 20
+    // params.offset = (e.pageX/window.innerWidth) * 50
+    // params.weight = (e.pageY/window.innerHeight) * 20
 })
 </script>
+    
 
 
 
