@@ -211,7 +211,7 @@ function render () {
                 ctx.lineTo(-edge/2 + randomError(displacementError),
                            -edge/2 + bottomIt)
             } else {
-                ctx.lineTo(-edge/2 + bottomIt - edge/2,
+                ctx.lineTo(-edge/2 + bottomIt - edge,
                             edge/2 + randomError(displacementError))
             }
         } else {
@@ -221,7 +221,7 @@ function render () {
                            -edge/2 + randomError(displacementError))
             } else {
                 ctx.lineTo( edge/2 + randomError(displacementError),
-                            edge/2 + upIt - edge/2)
+                            edge/2 + upIt - edge)
             }
         }
     }
