@@ -199,32 +199,52 @@ function render () {
         ctx.stroke()
     }
 
-    let upIt = 0
-    let bottomIt = 0
+    let it = 0
+    let isUp = true
+    let oldP = {
+        x: -edge/2 + randomError(displacementError),
+        y: -edge/2 + randomError(displacementError)
+    }
     ctx.strokeStyle = 'blue'
     ctx.lineWidth = fillWeight
-    ctx.beginPath()
-    ctx.moveTo(-edge/2 + randomError(displacementError),
-               -edge/2 + randomError(displacementError))
-    while ((upIt < edge*2) && (bottomIt < edge*2)) {
-        if (bottomIt < upIt) {
-            bottomIt += fillDisplacement + randomError(displacementError)
-            if (bottomIt < edge) {
-                ctx.lineTo(-edge/2 + randomError(displacementError),
-                           -edge/2 + bottomIt)
+    ctx.lineCap = 'square'
+    while (it < edge*2) {
+        let nextP
+        ctx.beginPath()
+        ctx.moveTo(oldP.x, oldP.y)
+        it += fillDisplacement + randomError(displacementError)
+        if (isUp) {
+            if (it < edge) {
+                nextP = {
+                    x: -edge/2 + randomError(displacementError),
+                    y: -edge/2 + it
+                }
             } else {
-                ctx.lineTo(-edge/2 + bottomIt - edge,
-                            edge/2 + randomError(displacementError))
+                nextP = {
+                    x: -edge/2 + it - edge,
+                    y: edge/2 + randomError(displacementError)
+                }
             }
+            isUp = false
         } else {
-            upIt += fillDisplacement + randomError(displacementError)
-            if (upIt < edge) {
-                ctx.lineTo(-edge/2 + upIt,
-                           -edge/2 + randomError(displacementError))
+            if (it < edge) {
+                nextP = {
+                    x: -edge/2 + it,
+                    y: -edge/2 + randomError(displacementError)
+                }
             } else {
-                ctx.lineTo( edge/2 + randomError(displacementError),
-                           -edge/2 + upIt - edge)
+                nextP = {
+                    x:  edge/2 + randomError(displacementError),
+                    y: -edge/2 + it - edge
+                }
             }
+            isUp = true
+        }
+
+        if (it < edge*2) {
+            ctx.lineTo(nextP.x, nextP.y)
+            ctx.stroke()
+            oldP = nextP
         }
     }
     ctx.stroke()
