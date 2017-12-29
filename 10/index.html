@@ -1,0 +1,223 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0
+        }
+        canvas {
+            width: 600px;
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat"></div>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
+<script>
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { pow, random, round, abs, floor, ceil, max, min, PI, sin } = Math
+const start = Date.now()
+let counter
+let last = Date.now()
+
+function getRandomColor () {
+    return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
+}
+
+function ffor00 () {
+    return round(random()) ? 'ff' : '00'
+}
+
+function getRandomNeonColor () {
+    return `#${ffor00()}${ffor00()}${ffor00()}`
+}
+
+/*
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width * 2
+    canvas.height = height * 2
+    ctx.scale(2, 2)
+}
+window.onresize()
+*/
+
+width = 600
+height = 600
+/*
+width = window.innerWidth
+height = window.innerHeight
+/**/
+canvas.style.width = width
+canvas.style.height = height
+canvas.width = width * 2
+canvas.height = height * 2
+ctx.scale(2, 2)
+</script>
+<!--<script src="render.js"></script>-->
+<script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 20, 20)
+}
+
+function loop () {
+    requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
+    window.render && render()
+    if (FPS_ENABLED) renderFPS()
+}
+ctx.fillStyle = 'white'
+ctx.fillRect(0,0,width,height)
+window.init && init()
+loop()
+
+
+// screenshot generator
+document.addEventListener('keypress', function (e) {
+    console.log(e)
+    if (e.code === "Space") {
+        // generate "screenshot"
+        const img = new Image()
+        img.width = img.height = width
+        img.src = canvas.toDataURL()
+        document.body.appendChild(img)
+    }
+})
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const params = {
+
+}
+
+let mouseX = 0, mouseY = 0
+const lights = [
+    { x: 100, y: 100, color: 0xffff00 },
+    { x: 200, y: 100, color: 0xff00ff }
+]
+
+function distPtoP (p1, p2) {
+    return pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2)
+}
+
+function render () {
+    lights[0].x = mouseX
+    lights[0].y = mouseY
+
+    ctx.fillStyle = 'lightgray'
+    ctx.fillRect(0, 0, width, height)
+
+    for (let x = 0; x < width; ++x) {
+        for (let y = 0; y < height; ++y) {
+            let r = 0, g = 0, b = 0
+            const p = {x,y}
+            for (let light of lights) {
+                const dist = distPtoP(light, p)
+                const factor = max(0, 1 - dist/100)
+                r += (light.color >> 16) * factor
+                g += ((light.color >> 8) % 256) * factor
+                b += (light.color % 256) * factor
+            }
+            r = min(255, r)
+            g = min(255, g)
+            b = min(255, b)
+            ctx.fillStyle = `rgb(${r}, ${g}, ${b})`
+            ctx.fillRect(x, y, 1, 1)
+        }
+    }
+}
+
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.pageX
+    mouseY = e.pageY
+})
+</script>
+    
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const gui = new dat.GUI()
+for (let param in params) {
+    const value = params[param]
+    const isColor = (typeof value === 'string' && value[0] === '#')
+    if (isColor) gui.addColor(params, param)
+    else gui.add(params, param).listen()
+}
+</script>
+</body>
