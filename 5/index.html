@@ -21,10 +21,22 @@ let width, height
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
 document.body.appendChild(canvas)
-const { abs, floor, max, PI, sin } = Math
+const { random, round, abs, floor, max, PI, sin } = Math
 const start = Date.now()
 let counter
 let last = Date.now()
+
+function getRandomColor () {
+    return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
+}
+
+function ffor00 () {
+    return round(random()) ? 'ff' : '00'
+}
+
+function getRandomNeonColor () {
+    return `#${ffor00()}${ffor00()}${ffor00()}`
+}
 
 /*
 window.onresize = function () {
@@ -149,6 +161,7 @@ const params = {
     edge: 5
 }
 
+let colorForRing = []
 let t = 0
 function render () {
     t++
@@ -163,9 +176,17 @@ function render () {
             for (let k = 0; k < 100; k++) {
                 ctx.fillStyle = 'orange'
                 ctx.beginPath()
+                /*
                 if (k < params.firstLimit) ctx.fillStyle = params.firstColor
                 else if (k < params.secondLimit) ctx.fillStyle = params.secondColor
                 else ctx.fillStyle = params.thirdColor
+                */
+                let color = colorForRing[k]
+                if (color == null) {
+                    color = getRandomNeonColor()
+                    colorForRing[k] = color
+                }
+                ctx.fillStyle = color
                 const height = (1.35 + 0.8 * sin(i+j+t/10))
                 ctx.arc(
                     0,
