@@ -154,7 +154,8 @@ document.addEventListener('keypress', function (e) {
 
 <script>
 const params = {
-
+    lightReach: 100,
+    pixelSize: 10
 }
 
 let mouseX = 0, mouseY = 0
@@ -167,29 +168,39 @@ function distPtoP (p1, p2) {
     return pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2)
 }
 
+
 function render () {
+    const { pixelSize, lightReach } = params
+
     lights[0].x = mouseX
     lights[0].y = mouseY
 
     ctx.fillStyle = 'lightgray'
     ctx.fillRect(0, 0, width, height)
 
-    for (let x = 0; x < width; ++x) {
-        for (let y = 0; y < height; ++y) {
+    for (let x = 0; x < width; x += pixelSize) {
+        for (let y = 0; y < height; y += pixelSize) {
             let r = 0, g = 0, b = 0
             const p = {x,y}
             for (let light of lights) {
+                if (abs(x-light.x) > lightReach ||
+                    abs(y-light.y) > lightReach) {
+                    continue
+                }
                 const dist = distPtoP(light, p)
-                const factor = max(0, 1 - dist/100)
+                const factor = max(0, 1 - dist/(lightReach*lightReach))
                 r += (light.color >> 16) * factor
                 g += ((light.color >> 8) % 256) * factor
                 b += (light.color % 256) * factor
             }
-            r = min(255, r)
-            g = min(255, g)
-            b = min(255, b)
+            r = round(min(255, r))
+            g = round(min(255, g))
+            b = round(min(255, b))
+            if (r > 0 || g > 0 || b > 0) {
+                console.log(`${r} ${g} ${b}`)
+            }
             ctx.fillStyle = `rgb(${r}, ${g}, ${b})`
-            ctx.fillRect(x, y, 1, 1)
+            ctx.fillRect(x, y, pixelSize, pixelSize)
         }
     }
 }
