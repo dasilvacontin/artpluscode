@@ -11,6 +11,9 @@
             width: 600px;
             height: 600px;
         }
+        canvas:hover {
+            cursor: none;
+        }
     </style>
 </head>
 <body>
@@ -154,14 +157,16 @@ document.addEventListener('keypress', function (e) {
 
 <script>
 const params = {
-    lightReach: 100,
-    pixelSize: 10
+    lightReach: 300,
+    pixelSize: 1
 }
 
 let mouseX = 0, mouseY = 0
 const lights = [
-    { x: 100, y: 100, color: 0xffff00 },
-    { x: 200, y: 100, color: 0xff00ff }
+    { x: 100, y: 100, color: 0xff0000 },
+    { x: 300, y: 100, color: 0xff00ff },
+    { x: 100, y: 300, color: 0xffff00 },
+    { x: 300, y: 300, color: 0x00ffff }
 ]
 
 function distPtoP (p1, p2) {
@@ -182,23 +187,26 @@ function render () {
         for (let y = 0; y < height; y += pixelSize) {
             let r = 0, g = 0, b = 0
             const p = {x,y}
+
+            // https://en.wikipedia.org/wiki/Inverse-square_law
             for (let light of lights) {
+                /*
                 if (abs(x-light.x) > lightReach ||
                     abs(y-light.y) > lightReach) {
                     continue
                 }
+                */
                 const dist = distPtoP(light, p)
-                const factor = max(0, 1 - dist/(lightReach*lightReach))
+                const factor = 1000/dist
                 r += (light.color >> 16) * factor
                 g += ((light.color >> 8) % 256) * factor
                 b += (light.color % 256) * factor
             }
+
             r = round(min(255, r))
             g = round(min(255, g))
             b = round(min(255, b))
-            if (r > 0 || g > 0 || b > 0) {
-                console.log(`${r} ${g} ${b}`)
-            }
+
             ctx.fillStyle = `rgb(${r}, ${g}, ${b})`
             ctx.fillRect(x, y, pixelSize, pixelSize)
         }
