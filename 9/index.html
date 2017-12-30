@@ -1,0 +1,334 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0
+        }
+        canvas {
+            width: 600px;
+            height: 600px;
+        }
+
+        #chat {
+            width: 450px;
+            height: 100%;
+            background: #fcfcfc;
+            background: #1d1369;
+            background: #f8fafe;
+            position: relative;
+        }
+
+        .message {
+            opacity: 0.82;
+            position: absolute;
+            font: 20px sans-serif;
+            background: #7200ff;
+            color: white;
+            padding: 15px;
+            margin: 0;
+            border-radius: 25px;
+            max-width: 250px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat"></div>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
+<script>
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { random, round, abs, floor, ceil, max, min, PI, sin, pow } = Math
+const start = Date.now()
+let counter
+let last = Date.now()
+
+function getRandomColor () {
+    return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
+}
+
+function ffor00 () {
+    return round(random()) ? 'ff' : '00'
+}
+
+function getRandomNeonColor () {
+    return `#${ffor00()}${ffor00()}${ffor00()}`
+}
+
+/*
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width * 2
+    canvas.height = height * 2
+    ctx.scale(2, 2)
+}
+window.onresize()
+*/
+
+width = 1080
+height = 1350
+/*
+width = window.innerWidth
+height = window.innerHeight
+/**/
+canvas.style.width = width
+canvas.style.height = height
+canvas.width = width * 2
+canvas.height = height * 2
+ctx.scale(2, 2)
+</script>
+<!--<script src="render.js"></script>-->
+<script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 20, 20)
+}
+
+function loop () {
+    requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
+    window.render && render()
+    if (FPS_ENABLED) renderFPS()
+}
+ctx.fillStyle = 'white'
+ctx.fillRect(0,0,width,height)
+window.init && init()
+loop()
+
+
+// screenshot generator
+document.addEventListener('keypress', function (e) {
+    console.log(e)
+    if (e.code === "Space") {
+        // generate "screenshot"
+        const img = new Image()
+        img.width = img.height = width
+        img.src = canvas.toDataURL()
+        document.body.appendChild(img)
+    }
+})
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+const chat = document.getElementById('chat')
+chat.style.width = width
+chat.style.height = height
+
+const messages = [
+    "This is so cool!",
+    "tiiiiiight",
+    "Oh wow! How did you do that?",
+    "Nice! Reminds me to some projects of John Maeda.",
+    "Your designs look fire<br>I would buy 'em",
+    "Wow 😮",
+    "😍😍😍",
+    "That neon pink looks so good 👌",
+    "Me encantan!❤",
+    "Qué software has utilizado? Mola mucho!",
+    "This is gorgeous",
+    "So beautiful!!!!",
+    "Is it up on Instagram yet so I can cry",
+    "😂 Its really cheered me up after an awful day tbh",
+    "Lool el segundo me encanta!",
+    "Love this'",
+    "omg so gud 😱",
+    "This is so satisfying to watch",
+    "♥️",
+    "Hate js but this is pretty cool",
+    "When you try to make it look messy but it still looks good 😌",
+    "Buenisimo! Mola un montón lo que haces. Keep it up! 👌",
+    "This is SO beautiful",
+    "It's so calming. I think I'm in love 😍",
+    "I love the art you published, keep it up!!<br>It definitely is refreshing and different 😊🌟",
+    "💖💖💖💖💖Its fab work 😉 Only being honest!",
+    "It’s awesome how you can create stuff from all of that, it’s amazing I admire that of you. 😊",
+    "Keep going, you’re very good at it, I’m a fan 😊❤",
+    "I mola el teu programmer art👍👍",
+    "Por cierto. Molan tu arte programatico",
+    "Ah, y maravilloso el trabajo de art+code, me encanta todo. Sigue subiendo más por favor 😍",
+    "💜 your art pieces",
+    "Qué guay!! 💕",
+    "Bro, congrats for the art project!!!",
+    "Haha i am having fun with the colors on the art thing !",
+    "Haha i even subscribed to your YouTube channel so now you have 11 subscribers 😛",
+    "oh btw you've been killing it with those art compositions!<br>damn dude<br>really really sick"
+]
+
+let messageQueue = []
+
+const params = {
+    font: '30px sans-serif',
+    sidesMargin: 10,
+    opacity: 0.82,
+    interMessageMargin: 7
+}
+
+let aliveMessages = []
+let mouseX = 0, mouseY = 0
+
+function sidedRandom (f) {
+    f = f || 0
+    const rad = random()*PI
+    let rand = pow(sin(rad), f)
+    rand = rad > PI/2 ? rand : 1 - rand
+    console.log(rand)
+    return rand
+}
+
+function spawnMessage () {
+    const message = document.createElement('p')
+    if (messageQueue.length == 0) {
+        messageQueue = messages.slice()
+        console.log('message queue reset')
+    }
+    const text = messageQueue.splice(random()*messageQueue.length, 1)
+    message.innerHTML = text
+    message.className = 'message'
+    message.style.bottom = -50
+
+    chat.appendChild(message)
+    message.height = message.offsetHeight
+    message.width = message.offsetWidth
+    message.style.left = message.x = 
+                         params.sidesMargin +
+                         sidedRandom(2) *
+                         (width - 2*params.sidesMargin - message.width)
+    message.y = -message.height
+    message.vy = max(0.5, (4 - round((message.height-30)/30)) * 0.5)
+    message.style.zIndex = ceil(message.vy*100)
+    chat.removeChild(message)
+    return message
+}
+
+const speed = 1
+let lastSpawn = {}
+let nextMessage = spawnMessage()
+function render () {
+    lastSpawnAtSpeed = lastSpawn[nextMessage.vy] || 0
+    if (lastSpawnAtSpeed <= 0) {
+        chat.appendChild(nextMessage)
+        aliveMessages.push(nextMessage)
+        lastSpawn[nextMessage.vy] = nextMessage.height +                  
+                                    params.interMessageMargin
+        nextMessage = spawnMessage()
+    }
+
+    for (let messageSpeed in lastSpawn) {
+        lastSpawn[messageSpeed] -= Number(messageSpeed)
+    }
+
+    aliveMessages.forEach((msg, i) => {
+        msg.y += msg.vy
+        msg.style.bottom = msg.y
+        if (msg.y > height + msg.height) {
+            chat.removeChild(msg)
+            msg.rip = true
+        } else {
+            if (0 < mouseX && mouseX < width && 0 < mouseY && mouseY < height) {
+                let x = (msg.x + msg.width)
+                let y = (msg.y - msg.height)
+                let distX = abs(mouseX - x)
+                let distY = abs((height - mouseY) - y)
+                console.log(distX + distY)
+                if (distX + distY < 50) {
+                    msg.style.background = 'white'
+                }
+            }
+        }
+    })
+    aliveMessages = aliveMessages.filter(m => !m.rip)
+}
+
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.pageX
+    mouseY = e.pageY
+})
+</script>
+    
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const gui = new dat.GUI()
+for (let param in params) {
+    const value = params[param]
+    const isColor = (typeof value === 'string' && value[0] === '#')
+    if (isColor) gui.addColor(params, param)
+    else gui.add(params, param).listen()
+}
+</script>
+</body>
