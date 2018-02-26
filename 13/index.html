@@ -59,9 +59,10 @@ height = window.innerHeight
 /**/
 canvas.style.width = width
 canvas.style.height = height
-canvas.width = width * 2
-canvas.height = height * 2
-ctx.scale(2, 2)
+const dpx = 2
+canvas.width = width * dpx
+canvas.height = height * dpx
+ctx.scale(dpx, dpx)
 </script>
 <!--<script src="render.js"></script>-->
 <script>
@@ -161,11 +162,11 @@ function render () {
     const { radius } = p
     ctx.save()
     ctx.translate(width/2,height/2)
-    ctx.strokeStyle = 'black'
     for (let i = radius; i >= -radius; --i) {
+        ctx.fillStyle = getRandomNeonColor()
         ctx.beginPath()
-        ctx.arc(0, i, radius - abs(i), 0, 2*PI)
-        ctx.stroke()
+        ctx.arc(0, i*1.5, radius - abs(i), 0, 2*PI)
+        ctx.fill()
     }
     ctx.restore()
 }
