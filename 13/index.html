@@ -23,7 +23,7 @@ let width, height
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
 document.body.appendChild(canvas)
-const { random, round, abs, floor, min, max, PI, sin, cos } = Math
+const { random, round, abs, floor, min, max, PI, sin, cos, sqrt, pow } = Math
 const start = Date.now()
 let counter
 let last = Date.now()
@@ -59,7 +59,7 @@ height = window.innerHeight
 /**/
 canvas.style.width = width
 canvas.style.height = height
-const dpx = 2
+const dpx = 1
 canvas.width = width * dpx
 canvas.height = height * dpx
 ctx.scale(dpx, dpx)
@@ -154,19 +154,24 @@ function screenshot () {
 
 <script>
 const params = {
-    radius: 100,
-    factor: 5.6
+    radius: 200,
+    factor: 1
 }
 const p = params
 
 function render () {
     const { radius, factor } = p
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0, 0, width, height)
+
     ctx.save()
     ctx.translate(width/2,height/2)
     for (let i = radius; i >= -radius; --i) {
         ctx.fillStyle = getRandomNeonColor()
         ctx.beginPath()
-        ctx.arc(0, i*factor, sin(PI*(abs(i)/radius))*radius, 0, 2*PI)
+        const sliceWidth = sqrt(1-pow(sin((PI/2)*(i/radius)),2))*radius
+        ctx.fillRect(-sliceWidth/2,i,sliceWidth,1)
+        //ctx.arc(0, i*factor, , 0, 2*PI)
         ctx.fill()
     }
     ctx.restore()
