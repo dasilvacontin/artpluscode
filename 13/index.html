@@ -23,7 +23,7 @@ let width, height
 const canvas = document.createElement('canvas')
 const ctx = canvas.getContext('2d')
 document.body.appendChild(canvas)
-const { random, round, abs, floor, min, max, PI, sin, cos, sqrt, pow } = Math
+const { random, round, abs, floor, min, max, PI, sin, asin, cos, sqrt, pow } = Math
 const start = Date.now()
 let counter
 let last = Date.now()
@@ -59,7 +59,7 @@ height = window.innerHeight
 /**/
 canvas.style.width = width
 canvas.style.height = height
-const dpx = 1
+const dpx = 2
 canvas.width = width * dpx
 canvas.height = height * dpx
 ctx.scale(dpx, dpx)
@@ -169,8 +169,9 @@ function render () {
     for (let i = radius; i >= -radius; --i) {
         ctx.fillStyle = getRandomNeonColor()
         ctx.beginPath()
-        const sliceWidth = sqrt(1-pow(sin((PI/2)*(i/radius)),2))*radius
-        ctx.fillRect(-sliceWidth/2,i,sliceWidth,1)
+        const angle = asin(i/radius)
+        const sliceWidth = cos(angle)*radius*2
+        ctx.fillRect(-sliceWidth/2,i*factor,sliceWidth,1)
         //ctx.arc(0, i*factor, , 0, 2*PI)
         ctx.fill()
     }
