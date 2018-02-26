@@ -1,0 +1,207 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: lightgray;
+        }
+
+        .dg.ac {
+            z-index: 2 !important;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
+<script type="text/javascript" src="../download.js"></script>
+<script>
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { random, round, abs, floor, min, max, PI, sin, cos } = Math
+const start = Date.now()
+let counter
+let last = Date.now()
+
+function getRandomColor () {
+    return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
+}
+
+function ffor00 () {
+    return round(random()) ? 'ff' : '00'
+}
+
+function getRandomNeonColor () {
+    return `#${ffor00()}${ffor00()}${ffor00()}`
+}
+
+/*
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width * 2
+    canvas.height = height * 2
+    ctx.scale(2, 2)
+}
+window.onresize()
+*/
+
+width = 750
+height = 750
+/*
+width = window.innerWidth
+height = window.innerHeight
+/**/
+canvas.style.width = width
+canvas.style.height = height
+canvas.width = width * 2
+canvas.height = height * 2
+ctx.scale(2, 2)
+</script>
+<!--<script src="render.js"></script>-->
+<script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 20, 20)
+}
+
+function loop () {
+    requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
+    window.render && render()
+    if (FPS_ENABLED) renderFPS()
+}
+ctx.fillStyle = 'white'
+ctx.fillRect(0,0,width,height)
+window.init && init()
+loop()
+
+
+// screenshot generator
+document.addEventListener('keypress', function (e) {
+    console.log(e)
+    if (e.code === "Space") screenshot()
+})
+
+let n = 0
+function screenshot () {
+    download(canvas.toDataURL(), `${window.render.name}.png`, "image/png")
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const params = {
+    radius: 200
+}
+const p = params
+
+function render () {
+    const { radius } = p
+    ctx.save()
+    ctx.translate(width/2,height/2)
+    ctx.strokeStyle = 'black'
+    for (let i = radius; i >= -radius; --i) {
+        ctx.beginPath()
+        ctx.arc(0, i, radius - abs(i), 0, 2*PI)
+        ctx.stroke()
+    }
+    ctx.restore()
+}
+
+document.addEventListener('mousemove', (e) => {
+    /*
+    const i = max(0, min(10, floor(e.pageX / 100)))
+    let old = window.render
+    window.render = window['render'+i] || window.render
+    if (old != window.render) {
+        t = 0
+        ctx.globalAlpha = 1
+        //reference.src = `result/${i}@2x.png`
+    }
+    */
+})
+</script>
+    
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const gui = new dat.GUI()
+for (let param in params) {
+    const value = params[param]
+    const isColor = (typeof value === 'string' && value[0] === '#')
+    if (isColor) gui.addColor(params, param)
+    else gui.add(params, param)
+}
+</script>
+</body>
