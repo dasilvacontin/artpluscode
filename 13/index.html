@@ -156,17 +156,16 @@ function screenshot () {
 
 <script>
 const params = {
-    radius: 52,
-    factor: 1,
-    offsetInc: 0.036,
-    offsetRadius: 0,
-    skip: 81
+    radius: 100,
+    factor: 2,
+    offsetInc: 0,
+    offsetRadius: 20,
+    skip: 10
 }
 const p = params
 let outerCounter = 0
 
 function render () {
-    console.log('hi')
     let { radius, factor, offsetInc, offsetRadius, skip } = p
     ctx.fillStyle = 'rgb(200, 200, 255)'
     ctx.fillRect(0, 0, width, height)
@@ -174,7 +173,8 @@ function render () {
     ctx.save()
     ctx.translate(width/2,height/2)
     skip = round(skip)
-    let counter = -(outerCounter++)
+    let counter = 0 //-(outerCounter++)
+    p.offsetInc += 0.001
     for (let ii = radius*factor; ii >= -radius*factor; ii -= 0.5) {
         const i = round(ii/factor)
         if (counter++ % skip != 0) continue
@@ -186,8 +186,12 @@ function render () {
         const offsetY = sin(i*offsetInc)*offsetRadius*offsetFactor
         const c = abs(floor(cos(i*offsetInc)*255))
         ctx.fillStyle = `rgb(${c},${c},255)`
-        ctx.arc(offsetX, offsetY+i*factor, sliceWidth, 0, 2*PI)
-        ctx.fill()
+        ctx.save()
+        ctx.translate(offsetX, offsetY+i*factor)
+        ctx.scale(1, 0.5)
+        ctx.arc(0, 0, sliceWidth, 0, 2*PI)
+        ctx.restore()
+        ctx.stroke()
     }
     ctx.restore()
 }
