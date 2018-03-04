@@ -1,0 +1,311 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: lightgray;
+        }
+
+        .dg.ac {
+            z-index: 2 !important;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
+<script type="text/javascript" src="../download.js"></script>
+<script>
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { random, round, abs, floor, min, max, PI,
+    sin, asin, cos, acos, tan, atan,
+    sqrt, pow } = Math
+const start = Date.now()
+let counter
+let last = Date.now()
+
+function getRandomColor () {
+    return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
+}
+
+function ffor00 () {
+    return round(random()) ? 'ff' : '00'
+}
+
+function getRandomNeonColor () {
+    return `#${ffor00()}${ffor00()}${ffor00()}`
+}
+
+/*
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width * 2
+    canvas.height = height * 2
+    ctx.scale(2, 2)
+}
+window.onresize()
+*/
+
+width = 1000
+height = 1000
+width = height = 1000
+/*
+width = window.innerWidth
+height = window.innerHeight
+/**/
+canvas.style.width = width
+canvas.style.height = height
+const dpx = window.devicePixelRatio
+canvas.width = width * dpx
+canvas.height = height * dpx
+ctx.scale(dpx, dpx)
+</script>
+<!--<script src="render.js"></script>-->
+<script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 20, 20)
+}
+
+function loop () {
+    requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
+    window.render && render()
+    if (FPS_ENABLED) renderFPS()
+}
+ctx.fillStyle = 'white'
+ctx.fillRect(0,0,width,height)
+window.init && init()
+loop()
+
+
+// screenshot generator
+document.addEventListener('keypress', function (e) {
+    console.log(e)
+    if (e.code === "Space") screenshot()
+})
+
+let n = 0
+function screenshot () {
+    download(canvas.toDataURL(), `${window.render.name}.png`, "image/png")
+}
+
+let oldScale = CanvasRenderingContext2D.prototype.scale
+CanvasRenderingContext2D.prototype.scale = function (x, y) {
+    if (y === undefined) y = x
+    oldScale.call(this, x, y)
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const params = {
+    x0: 5,
+    y0: 5,
+    x1: 7,
+    y1: -7,
+}
+const p = params
+
+function decimals(n, dec) {
+    let factor = pow(10,dec)
+    return round(n*factor)/factor
+}
+
+function vectorAngle (v) {
+    let angle = atan(v.y/v.x)
+    if (v.x < 0) angle += PI
+    return angle
+}
+
+function vectorMagnitude (v) {
+    let mag = sqrt(pow(v.x,2) + pow(v.y,2))
+    return decimals(mag, 2)
+}
+
+function renderVector (v) {
+    ctx.fillStyle = 'white'
+    ctx.lineWidth = 0.1
+    ctx.lineCap = 'round'
+
+    ctx.beginPath()
+    ctx.moveTo(0,0)
+    ctx.lineTo(v.x,v.y)
+    ctx.stroke()
+
+    ctx.save()
+    ctx.translate(v.x/2.4, v.y/2.4)
+    ctx.rotate(vectorAngle(v))
+    if (v.x < 0) ctx.rotate(PI)
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'bottom'
+    ctx.fillStyle = ctx.strokeStyle
+    ctx.scale(0.1,0.1)
+    ctx.fillText(`(${decimals(v.x,1)},${decimals(v.y,1)}) ${vectorMagnitude(v)}`,0,-2)
+    ctx.restore()
+
+    ctx.save()
+    ctx.translate(v.x, v.y)
+    ctx.rotate(PI/2 + vectorAngle(v))
+    ctx.beginPath()
+    ctx.moveTo(0,0)
+    ctx.lineTo(1/2,1)
+    ctx.lineTo(-1/2,1)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+    ctx.restore()
+}
+
+function scalarProduct (v0, v1) {
+    let result =  v0.x * v1.x + v0.y * v1.y
+    return floor(result*100)/100
+
+}
+
+function render () {
+    const v0 = { x: p.x0, y: p.y0 }
+    const v1 = { x: p.x1, y: p.y1 }
+
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0,0,width,height)
+
+    ctx.save()
+    ctx.translate(width/2, height/2)
+
+    ctx.save()
+    ctx.scale(20,20)
+    ctx.strokeStyle = 'blue'
+    renderVector(v0)
+    ctx.restore()
+
+    ctx.save()
+    ctx.scale(20,20)
+    ctx.strokeStyle = 'red'
+    renderVector(v1)
+    ctx.restore()
+
+    ctx.restore()
+
+    ctx.save()
+    ctx.fillStyle = 'black'
+    ctx.textAlign = 'center'
+    ctx.font = '20px sans-serif'
+    ctx.translate(width/2, 7*height/8)
+    ctx.save()
+    ctx.scale(0.6)
+    ctx.fillText(`${p.x0} * ${p.x1}`, 0, -120)
+    ctx.fillText(`+`, 0, -90)
+    ctx.fillText(`${p.y0} * ${p.y1}`, 0, -60)
+    ctx.fillText(`=`, 0, -30)
+    ctx.restore()
+    ctx.fillText(scalarProduct(v0,v1), 0, 10)
+    ctx.restore()
+}
+
+document.addEventListener('mousemove', (e) => {
+    let x = e.pageX
+    let y = e.pageY
+    x -= width/2
+    y -= height/2
+    x /= 20
+    y /= 20
+    p.x0 = decimals(x, 1)
+    p.y0 = decimals(y, 1)
+    /*
+    const i = max(0, min(10, floor(e.pageX / 100)))
+    let old = window.render
+    window.render = window['render'+i] || window.render
+    if (old != window.render) {
+        t = 0
+        ctx.globalAlpha = 1
+        //reference.src = `result/${i}@2x.png`
+    }
+    */
+})
+</script>
+    
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const gui = new dat.GUI()
+for (let param in params) {
+    const value = params[param]
+    const isColor = (typeof value === 'string' && value[0] === '#')
+    if (isColor) gui.addColor(params, param)
+    else gui.add(params, param).listen()
+}
+</script>
+</body>
