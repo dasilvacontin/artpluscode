@@ -17,6 +17,8 @@
 <body>
 <script type="text/javascript" src="../dat.gui.min.js"></script>
 <script type="text/javascript" src="../download.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+<script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
 <script>
 
 let width, height
@@ -154,25 +156,37 @@ function screenshot () {
 
 <script>
 const params = {
-    radius: 200,
-    factor: 1
+    radius: 52,
+    factor: 1,
+    offsetInc: 0.036,
+    offsetRadius: 0,
+    skip: 37
 }
 const p = params
+let outerCounter = 0
 
 function render () {
-    const { radius, factor } = p
-    ctx.fillStyle = 'white'
+    console.log('hi')
+    let { radius, factor, offsetInc, offsetRadius, skip } = p
+    ctx.fillStyle = 'rgb(200, 200, 255)'
     ctx.fillRect(0, 0, width, height)
 
     ctx.save()
     ctx.translate(width/2,height/2)
-    for (let i = radius; i >= -radius; --i) {
-        ctx.fillStyle = getRandomNeonColor()
+    skip = round(skip)
+    let counter = -(outerCounter++)
+    for (let ii = radius*factor; ii >= -radius*factor; ii -= 0.5) {
+        const i = round(ii/factor)
+        if (counter++ % skip != 0) continue
         ctx.beginPath()
         const angle = asin(i/radius)
         const sliceWidth = cos(angle)*radius*2
-        ctx.fillRect(-sliceWidth/2,i*factor,sliceWidth,1)
-        //ctx.arc(0, i*factor, , 0, 2*PI)
+        const offsetFactor = cos(angle)
+        const offsetX = cos(i*offsetInc)*offsetRadius*offsetFactor
+        const offsetY = sin(i*offsetInc)*offsetRadius*offsetFactor
+        const c = abs(floor(cos(i*offsetInc)*255))
+        ctx.fillStyle = `rgb(${c},${c},255)`
+        ctx.arc(offsetX, offsetY+i*factor, sliceWidth, 0, 2*PI)
         ctx.fill()
     }
     ctx.restore()
@@ -189,6 +203,18 @@ document.addEventListener('mousemove', (e) => {
         //reference.src = `result/${i}@2x.png`
     }
     */
+})
+
+let recorder
+canvas.addEventListener('mousedown', () => {
+    recorder = new CanvasRecorder(canvas);
+    recorder.record()
+})
+canvas.addEventListener('mouseup', () => {
+    recorder.stop(function (blob) {
+        let url = URL.createObjectURL(blob)
+        window.open(url)
+    })
 })
 </script>
     
