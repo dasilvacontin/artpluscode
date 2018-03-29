@@ -81,7 +81,7 @@ function renderFPS () {
 
 
 function loop () {
-    window.init && (init(), window.init == null)
+    window.init && (init(), window.init = null)
     requestAnimationFrame(loop)
     counter = Date.now() - start
     delta = Date.now() - last
@@ -178,8 +178,8 @@ function getImageData (img) {
 <script>
 
 const params = {
-    angleInc: 0.1,
-    squareEdge: 200
+    angleInc: 0.03,
+    edge: 200
 }
 const p = params
 
@@ -190,13 +190,12 @@ function init () {
 function render () {
     ctx.save()
     ctx.fillStyle = 'blue'
-    ctx.globalAlpha = 0.1
+    ctx.globalAlpha = 0.01
     ctx.fillRect(-width/2, -height/2, width, height)
     ctx.restore()
 
     ctx.strokeStyle = 'white'
-    const edge = -p.squareEdge/2
-    ctx.strokeRect(-edge, -edge, edge, edge)
+    ctx.strokeRect(-p.edge/2, -p.edge/2, p.edge, p.edge)
     ctx.rotate(p.angleInc)
 }
 
