@@ -65,7 +65,7 @@ height = window.innerHeight
 /**/
 canvas.style.width = width
 canvas.style.height = height
-const dpx = 1 //window.devicePixelRatio
+const dpx = 2 //window.devicePixelRatio
 canvas.width = width * dpx
 canvas.height = height * dpx
 ctx.scale(dpx, dpx)
@@ -101,8 +101,11 @@ document.addEventListener('keypress', function (e) {
 })
 
 let n = 0
+if (localStorage.nextBloopId == null) {
+    localStorage.nextBloopId = 0
+}
 function screenshot () {
-    download(canvas.toDataURL(), `${window.render.name}.png`, "image/png")
+    download(canvas.toDataURL(), `bloop${localStorage.nextBloopId++}.png`, "image/png")
 }
 
 let oldScale = CanvasRenderingContext2D.prototype.scale
@@ -178,8 +181,13 @@ function getImageData (img) {
 <script>
 
 const params = {
+    bgColor: '#ffd100',
+    strokeColor: '#ffffff',
+
+    edge: 200,
     angleInc: 0.03,
-    edge: 200
+    ghosts: 4,
+    ghostAngleInc: 0.1
 }
 const p = params
 
@@ -188,14 +196,19 @@ function init () {
 }
 
 function render () {
+    ctx.fillStyle = p.bgColor
+    ctx.fillRect(-width,-height,width*2,height*2)
+
+    ctx.strokeStyle = p.strokeColor
     ctx.save()
-    ctx.fillStyle = 'blue'
-    ctx.globalAlpha = 0.01
-    ctx.fillRect(-width/2, -height/2, width, height)
+    for (let i = 0; i < p.ghosts; ++i) {
+        ctx.strokeRect(-p.edge/2, -p.edge/2, p.edge, p.edge)
+        ctx.rotate(-p.ghostAngleInc)
+        ctx.globalAlpha -= 1/p.ghosts
+    }
     ctx.restore()
 
-    ctx.strokeStyle = 'white'
-    ctx.strokeRect(-p.edge/2, -p.edge/2, p.edge, p.edge)
+    // end of func inc
     ctx.rotate(p.angleInc)
 }
 

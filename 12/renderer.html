@@ -1,0 +1,281 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: lightgray;
+        }
+
+        .dg.ac {
+            z-index: 2 !important;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
+<script type="text/javascript" src="../download.js"></script>
+<script>
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { random, round, abs, floor, min, max, PI, sin, cos } = Math
+const start = Date.now()
+let counter
+let last = Date.now()
+
+function getRandomColor () {
+    return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
+}
+
+function ffor00 () {
+    return round(random()) ? 'ff' : '00'
+}
+
+function getRandomNeonColor () {
+    return `#${ffor00()}${ffor00()}${ffor00()}`
+}
+
+/*
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width * 2
+    canvas.height = height * 2
+    ctx.scale(2, 2)
+}
+window.onresize()
+*/
+
+width = 750
+height = 750
+/*
+width = window.innerWidth
+height = window.innerHeight
+/**/
+canvas.style.width = width
+canvas.style.height = height
+canvas.width = width * 2
+canvas.height = height * 2
+ctx.scale(2, 2)
+</script>
+<!--<script src="render.js"></script>-->
+<script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 20, 20)
+}
+
+function loop () {
+    requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
+    window.render && render()
+    if (FPS_ENABLED) renderFPS()
+}
+ctx.fillStyle = 'white'
+ctx.fillRect(0,0,width,height)
+window.init && init()
+loop()
+
+
+// screenshot generator
+document.addEventListener('keypress', function (e) {
+    console.log(e)
+    if (e.code === "Space") screenshot()
+})
+
+let n = 0
+function screenshot () {
+    download(canvas.toDataURL(), `${window.render.name}.png`, "image/png")
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const params = {
+    text: 'another day',
+    color: '#9500ff',
+    boxWidth: 380,
+    boxHeight: 90,
+    boxYOffset: 5,
+    boxColor: '#e3f2ff',
+
+    emojiOffset: 45
+}
+const p = params
+
+let x = width / 2
+let y = height / 2
+let aCode = 'a'.charCodeAt(0)
+let zCode = 'z'.charCodeAt(0)
+let currentText = p.text
+let lastText = Date.now()
+
+// glitch
+let sectionY, sectionHeight, dispX
+let glitchDuration = 0
+let lastGlitch = Date.now()
+
+function render () {
+    ctx.save()
+    ctx.globalAlpha = 0.07
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0,0,width,height)
+    ctx.restore()
+
+    /*
+    ctx.save()
+    ctx.globalAlpha = 0.9
+    ctx.drawImage(canvas,
+                  0,0,2*width,2*height,
+                  1,1,width,height)
+    ctx.restore()
+    
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0,0,width,1)
+    ctx.fillRect(0,0,1,height)
+    */
+
+    ctx.fillStyle = p.boxColor
+    ctx.fillRect(x - p.boxWidth/2,
+                 y - p.boxHeight/2 + p.boxYOffset,
+                 p.boxWidth,
+                 p.boxHeight)
+
+    ctx.fillStyle = p.color
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font = '50px monospace'
+
+    if (true /* Date.now() - lastText > 50 */) {
+        currentText = p.text.split('').map(c =>
+            (random() > 0.7)
+                ? c
+                : String.fromCharCode(floor(random()*(zCode-aCode)) + aCode)
+        ).join('')
+        lastText = Date.now()
+    }
+    ctx.fillText(currentText, x, y)
+
+    ctx.font = '20px monospace'
+    ctx.fillText('(๑˃̵ᴗ˂̵)و', x, y + p.emojiOffset)
+
+    let glitchIsActive = ((Date.now() - lastGlitch) < glitchDuration)
+    if (glitchIsActive || (random() < 0.005)) {
+        if (!glitchIsActive) {
+            sectionY = y - 50 + random()*70
+            sectionHeight = 20 + random()*20
+            dispX = -70 + random()*140
+            glitchDuration = (0.3 + random()*0.5) * 1000
+            lastGlitch = Date.now()
+        }
+        ctx.drawImage(canvas,
+            0,     2*sectionY, 2*width, 2*sectionHeight,
+            dispX, 1*sectionY, 1*width, 1*sectionHeight,
+        )    }
+
+    /*
+    let glitchHeight = 2
+    for (let i = y - 100; i < y + 100; i += glitchHeight) {
+        ctx.drawImage(canvas,
+            0, 2*i, 2*width, 2*glitchHeight,
+            -5 + random()*10, i, width, glitchHeight)
+    }
+    */
+}
+
+document.addEventListener('mousemove', (e) => {
+    /*
+    const i = max(0, min(10, floor(e.pageX / 100)))
+    let old = window.render
+    window.render = window['render'+i] || window.render
+    if (old != window.render) {
+        t = 0
+        ctx.globalAlpha = 1
+        //reference.src = `result/${i}@2x.png`
+    }
+    */
+})
+</script>
+    
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const gui = new dat.GUI()
+for (let param in params) {
+    const value = params[param]
+    const isColor = (typeof value === 'string' && value[0] === '#')
+    if (isColor) gui.addColor(params, param)
+    else gui.add(params, param)
+}
+</script>
+</body>

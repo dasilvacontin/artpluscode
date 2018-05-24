@@ -19,6 +19,7 @@
             background: #1d1369;
             background: #f8fafe;
             position: relative;
+            border: 1px solid black;
         }
 
         .message {
@@ -72,8 +73,8 @@ window.onresize = function () {
 window.onresize()
 */
 
-width = 1080
-height = 1350
+width = 1080/2
+height = 1350/2
 /*
 width = window.innerWidth
 height = window.innerHeight
@@ -103,8 +104,6 @@ function loop () {
 }
 ctx.fillStyle = 'white'
 ctx.fillRect(0,0,width,height)
-window.init && init()
-loop()
 
 
 // screenshot generator
@@ -221,6 +220,7 @@ const messages = [
 ]
 
 let messageQueue = []
+messageQueue = messages
 
 const params = {
     font: '30px sans-serif',
@@ -242,8 +242,9 @@ function sidedRandom (f) {
 }
 
 function spawnMessage () {
-    const message = document.createElement('p')
+    let message = document.createElement('p')
     if (messageQueue.length == 0) {
+        throw new Error("Finished")
         messageQueue = messages.slice()
         console.log('message queue reset')
     }
@@ -255,12 +256,19 @@ function spawnMessage () {
     chat.appendChild(message)
     message.height = message.offsetHeight
     message.width = message.offsetWidth
+    message.vy = max(0.5, (4 - round((message.height-30)/30)) * 0.5)
+    if (messageQueue.length > 0 &&
+        (lastSpawn[message.vy] || 0) / message.vy > 60) {
+        chat.removeChild(message)
+        message = spawnMessage()
+        messageQueue.push(text)
+        return message
+    }
     message.style.left = message.x = 
                          params.sidesMargin +
                          sidedRandom(2) *
                          (width - 2*params.sidesMargin - message.width)
     message.y = -message.height
-    message.vy = max(0.5, (4 - round((message.height-30)/30)) * 0.5)
     message.style.zIndex = ceil(message.vy*100)
     chat.removeChild(message)
     return message
@@ -270,8 +278,8 @@ const speed = 1
 let lastSpawn = {}
 let nextMessage = spawnMessage()
 function render () {
-    lastSpawnAtSpeed = lastSpawn[nextMessage.vy] || 0
-    if (lastSpawnAtSpeed <= 0) {
+    const lastSpawnAtSpeed = lastSpawn[nextMessage.vy] || 0
+    if (messageQueue.length > 0  && lastSpawnAtSpeed <= 0) {
         chat.appendChild(nextMessage)
         aliveMessages.push(nextMessage)
         lastSpawn[nextMessage.vy] = nextMessage.height +                  
@@ -290,6 +298,7 @@ function render () {
             chat.removeChild(msg)
             msg.rip = true
         } else {
+            /*
             if (0 < mouseX && mouseX < width && 0 < mouseY && mouseY < height) {
                 let x = (msg.x + msg.width)
                 let y = (msg.y - msg.height)
@@ -300,6 +309,7 @@ function render () {
                     msg.style.background = 'white'
                 }
             }
+            */
         }
     })
     aliveMessages = aliveMessages.filter(m => !m.rip)
@@ -330,5 +340,7 @@ for (let param in params) {
     if (isColor) gui.addColor(params, param)
     else gui.add(params, param).listen()
 }
+window.init && init()
+loop()
 </script>
 </body>

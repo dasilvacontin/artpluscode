@@ -1,0 +1,321 @@
+<!doctype html5>
+<head>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            background: #fafafa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dg.ac {
+            z-index: 2 !important;
+        }
+    </style>
+</head>
+<body>
+<script type="text/javascript" src="../dat.gui.min.js"></script>
+<script type="text/javascript" src="../download.js"></script>
+<script type="text/javascript" src="../libs/CCapture.all.min.js"></script>
+<script type="text/javascript" src="../libs/memoize.js"></script>
+<script>
+
+var capturer = new CCapture({
+    framerate: 60,
+    verbose: true,
+    format: 'webm',
+    quality: 100,
+    timeLimit: 60
+})
+
+let width, height
+const canvas = document.createElement('canvas')
+const ctx = canvas.getContext('2d')
+document.body.appendChild(canvas)
+const { random, round, abs, floor, min, max, PI,
+    asin, acos, tan, atan,
+    sqrt, pow } = Math
+
+// const cos = memoize(Math.cos)
+// const sin = memoize(Math.sin)
+const { cos, sin } = Math // actually faster lol
+
+const start = Date.now()
+let counter
+let last = Date.now()
+
+function getRandomColor () {
+    return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
+}
+
+function ffor00 () {
+    return round(random()) ? 'ff' : '00'
+}
+
+function getRandomNeonColor () {
+    return `#${ffor00()}${ffor00()}${ffor00()}`
+}
+
+/*
+window.onresize = function () {
+    width = window.innerWidth
+    height = window.innerHeight
+    canvas.width = width * 2
+    canvas.height = height * 2
+    ctx.scale(2, 2)
+}
+window.onresize()
+*/
+
+width = 1000
+height = 1000
+width = height = 500
+/*
+width = window.innerWidth
+height = window.innerHeight
+/**/
+canvas.style.width = width
+canvas.style.height = height
+const dpx = 2 //window.devicePixelRatio
+canvas.width = width * dpx
+canvas.height = height * dpx
+ctx.scale(dpx, dpx)
+</script>
+<!--<script src="render.js"></script>-->
+<script>
+const FPS_ENABLED = false
+function renderFPS () {
+    ctx.clearRect(0, 0, 50, 20)
+    ctx.fillStyle = 'blue'
+    ctx.fillText(delta, 20, 20)
+}
+
+
+function loop () {
+    window.init && (init(), window.init = null)
+    // requestAnimationFrame(loop)
+    counter = Date.now() - start
+    delta = Date.now() - last
+    last = Date.now()
+    window.render && render()
+    capturer.capture(canvas)
+    if (FPS_ENABLED) renderFPS()
+}
+ctx.fillStyle = 'white'
+ctx.fillRect(0,0,width,height)
+requestAnimationFrame(loop)
+
+
+// screenshot generator
+document.addEventListener('keypress', function (e) {
+    console.log(e)
+    if (e.code === "Space") screenshot()
+})
+
+let n = 0
+if (localStorage.nextBloopId == null) {
+    localStorage.nextBloopId = 0
+}
+function screenshot () {
+    download(canvas.toDataURL(), `bloop${localStorage.nextBloopId++}.png`, "image/png")
+}
+
+let oldScale = CanvasRenderingContext2D.prototype.scale
+CanvasRenderingContext2D.prototype.scale = function (x, y) {
+    if (y === undefined) y = x
+    oldScale.call(this, x, y)
+}
+
+function getImageData (img) {
+    const canvas = document.createElement('canvas')
+    canvas.width = img.width
+    canvas.height = img.height
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(img, 0, 0)
+    return ctx.getImageData(0, 0, canvas.width, canvas.height)
+}
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+const params = {
+    lineWidth: 10,
+    radius: 50,
+    // detail: 10
+    // detail: 70
+    // detail: 3
+    detail: 2000
+}
+const p = params
+
+let startingDelta
+let delta
+let ongoing = false
+function init () {
+    // capturer.start()
+    startingDelta = (Date.now() / 2500)
+    ongoing = true
+}
+
+function sleep(n) {
+    return new Promise (function (resolve) {
+        setTimeout(resolve, n)
+    })
+}
+
+let x = 0
+let done = false
+// let ki = -150
+// let ki = -800
+let ki = -200
+async function render () {
+    // if (done) return
+    done = true
+    let { lineWidth, radius, detail } = p
+    detail = max(1, detail)
+    const hLW = lineWidth / 2
+    const inc = PI/detail
+
+    // reset
+    ctx.fillStyle = 'blue'
+    ctx.fillRect(0,0,width,height)
+
+    ctx.save()
+    ctx.translate(width/2, height/2)
+
+    ctx.fillStyle = 'white'
+    // ctx.fillRect(-width/2, -10, width, 20)
+
+    ctx.strokeStyle = 'black'
+    ctx.fillStyle = 'white'
+
+    // delta = (Date.now() / 5000)
+    // delta = (Date.now() / 2500)
+    delta = startingDelta
+    console.log(delta - startingDelta, 2*PI)
+    if (ongoing && (delta - startingDelta >= 2*PI)) {
+        ongoing = false
+        capturer.save()
+        capturer.stop()
+    }
+    for (let k = ki; k <= -ki; k += 1/8) {
+    // for (let k = -1; k <= 1; k += 0.005) {
+        ctx.save()
+        // ctx.translate(k,sin(k/100)*150)
+        ctx.translate(k,sin(k/50)*150)
+        // ctx.translate(ki*k, sin(k*3)*150)
+        // if (k % 3 === 0) {
+        // if (k % 11 === 0) {
+        // Date.now() is around 0.1
+        // let n = k / 200 + (Date.now() / 5000)
+        let n = k / 10 + delta
+        for (let angle = n; angle < n + PI; angle += inc) {
+            const f = 1 - abs(PI/2 - (angle-n+inc))/(PI/2)
+            let color = 255 - f*100
+            ctx.fillStyle = `rgb(${color}, 0, ${color})`
+            ctx.beginPath()
+            const inRad = radius-hLW
+            const outRad = radius+hLW
+            let c = cos(angle), s = sin(angle)
+            ctx.moveTo((outRad) * c, (outRad) * s)
+            ctx.lineTo((inRad) * c, (inRad) * s)
+            angle += inc
+            c = cos(angle), s = sin(angle)
+            ctx.lineTo((inRad) * c, (inRad) * s)
+            ctx.lineTo((outRad) * c, (outRad) * s)
+            ctx.fill()
+            angle -= inc
+        }
+        console.log(k)
+        await sleep(25)
+        // }
+        ctx.restore()
+    }
+
+    ctx.restore()
+}
+
+document.addEventListener('mousemove', (e) => {
+    // ki = window.innerWidth/2 - e.pageX
+})
+</script>
+    
+
+
+
+
+
+
+
+
+
+
+
+<script>
+const gui = new dat.GUI()
+for (let param in params) {
+    const value = params[param]
+    const isColor = (typeof value === 'string' && value[0] === '#')
+    if (isColor) gui.addColor(params, param)
+    else gui.add(params, param).listen()
+}
+</script>
+</body>

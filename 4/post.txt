@@ -1,22 +1,30 @@
 #art+#code #4: spectrum slit-scan
 .
 Song: @Mutemath - Vitals. (which I got to see live in London! 💙)
-Link in my bio for the whole video on YouTube! 🎉
+YouTube link in my bio for the whole video! 🎉
 .
-So happy I can finally show you the result! I started working on this piece in early September, but life has been very busy: my last month in London 😢, catching up with college, preparing for HackUPC…
+So happy I can finally show you the result! I started working on this piece in early September, but there's been so many setbacks: my last month in London, catching up with college, preparing for HackUPC, Instagram getting bugged for this post and not replying to my bug reports… 😢
 .
 Initially I wanted to produce an image where every row of pixels would represent the frequencies of a song at a given time. So looking at the whole picture, you would see which frequencies and parts of the song are more intense.
 .
-However, I was not able to find out how to easily obtain the frequencies of a song at any point in time, only as the song plays. So to generate the image, I'd have to wait for the whole song to finish, which is not ideal 😅 – slow iteration is killer.
+However, I was not able to find out how to easily obtain the frequencies of a song at any point in time, I can only obtain samples as the song plays. So to generate the image, I'd have to wait for the whole song to finish, which is not ideal 😅 – slow iteration is killer.
 .
 In the end, experimenting with what I could do, I ended up with this spectrum visualization that gets persisted and pushed over time – similar to a slit-scan. It may look visually pleasing, but it doesn't give as much insight into the song as I was hoping for – it's very hard to tell the "wave" or shape of the frequencies over time. Maybe if this were 3D I could rotate the piece and find a more interesting point of view. 🤔
 .
-To achieve a smooth framerate, only the new row of columns is drawn (instead of redrawing every visible column every frame). The rest of the columns are shifted upwards using the video memory from the last frame.
+To achieve a smooth framerate, only the new slice of columns is drawn (instead of redrawing every visible column every frame). The rest of the columns are shifted upwards using video memory data from the last frame (i.e. reusing what was left in the screen from the last frame).
 .
-It was very interesting to have a UI (datGUI) to manipulate the visualization's parameters in real-time, which really helps with exploring color combinations and trying silly things like tilting the spectrum. I'll definitively do it more often! 😊 (this is the earliest piece in which I do so)
+It was very interesting to have a UI (datGUI) to manipulate the visualization's parameters in real-time, which really helps with exploring color combinations and trying silly things like tilting the spectrum. I'll definitively do it more often! 😊 (this is the earliest piece in which I do so!)
 .
 I hope you enjoy this piece and its alternative shots! Let me know if there's any aspects, details, or shots, that you especially like – it would make my day! 😊❤️ Any questions about the piece or the process are welcome too, of course!
 .
 > As usual, you can find the source code (and additional shots) for all my #art+#code experiments at https://github.com/dasilvacontin/artpluscode.
 .
-#webart #videoart #artwork #graphics #procedural #art #code #song #slitscan #piece #mutemath #vitals #pixels #frequencies #intensity #javascript #web #jsart #html5 #canvas #audio #spectrum #visualization #wave #shape #2d #3d #realtime #sourcecode #github #datGUI
+#computerart #digitalart #webart #videoart #artwork #graphics #animation #procedural #design #designinspiration #slitscan #mutemath #vitals #pixels #javascript #web #jsart #html5 #canvas #audio #spectrum #visualization #wave #3d #realtime #artistsoninstagram 
+
+Alternative shots / miscellanea for #art+#code #4 💙. I couldn't post them together with the video because Instagram has bugs. 😅
+.
+Interactive visualization at http://dasilvacont.in/artpluscode/4.
+.
+I hope you enjoy this piece and its alternative shots! Let me know if there's any aspects, details, or shots, that you especially like – it would make my day! 😊❤️ Any questions about the piece or the process are welcome too, of course!
+.
+> As usual, you can find the source code (and additional shots) for all my #art+#code experiments at https://github.com/dasilvacontin/artpluscode.

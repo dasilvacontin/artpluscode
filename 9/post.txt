@@ -1,0 +1,8 @@
+Thanks SO much for all the love you’ve given my art and me these past months!  You motivate me to keep pushing, and harder 😊💖. Hoping to create and design a lot more in 2018!! 😊
+.
+
+Fyi, the messages are taken mostly from the #art+#code posts, but there’s some DMs too. Sorry if I missed any of them! Specially the irl ones.
+.
+In regards to the animation, the messages’ speed and z-index depend on the message’s height (line count). They are also randomly distributed horizontally with a bigger weight towards the edges, because that way it looks less cluttered in the middle and it looks more like a conversation.
+.
+Hope you are all having a wonderful time – talk soon! 😊
