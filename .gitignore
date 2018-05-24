@@ -1,2 +1,6 @@
 .DS_Store
 **/selection
+**/.praise
+
+# m4v is much lighter, avoid GH limit of 100MB file size
+**/*.mov
