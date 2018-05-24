@@ -1,14 +1,21 @@
 <!DOCTYPE html5>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width">
+    
   <style>
 
     html, body {
       margin: 0;
       padding: 0;
+      touch-action: manipulation;
+    }
+    body.previewing {
+      overflow: hidden;
     }
 
-    body {
+    body, div {
+      width: 100%;
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
@@ -17,26 +24,87 @@
       align-content: flex-start;
     }
 
-    img {
+    img, video {
       width: 300px;
+      max-width: 600px;
       height: auto;
       flex: 1;
     }
+    img.previewing, video.previewing {
+      width: auto;
+      max-width: 100%;
+      max-height: 100%;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-50%);
+      z-index: 2;
+    }
 
+    #backdrop {
+      z-index: 1;
+      background: white;
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: none;
+    }
+    body.previewing #backdrop {
+      display: block;
+    }
   </style>
 </head>
 <body>
-  <img src="twitch-selection/0.jpg">
+  <div id="backdrop"></div>
 
-  <img src="2/bloop-2.png">
-  <img src="2/bloop-4.png">
-  <img src="2/art.png">
 
-  <img src="3/selection/0.gif">
-  <img src="3.1/bloops/bloop-1.png">
-  <img src="3/selection/2.png">
-  <img src="3.1/bloops/bloop-2.png">
-  <img src="3.1/bloops/bloop-7.png">
+  <video src="17/bloops/slide3.m4v" autoplay loop muted></video>
+  <video src="17/bloops/slide2-short.m4v" autoplay loop muted></video>
+  <video src="17/bloops/slide-short.m4v" autoplay loop muted></video>
+  <img src="17/bloops/bloop56.png">
+  <img src="17/bloops/bloop36.png">
+  <img src="17/bloops/bloop32.png">
+
+  <img src="16/selection/bloop23.png">
+  <img src="16/selection/bloop16.png">
+  <img src="16/selection/bloop15.png">
+  <img src="16/selection/bloop11.png">
+
+  <video src="13/bloops/bloop14.m4v" autoplay loop muted></video>
+  <video src="13/bloops/bloop11t.mov" autoplay loop muted></video>
+  <video src="13/bloops/bloop10t.mov" autoplay loop muted></video>
+  <img src="13/bloops/bloop9.png">
+  <img src="13/bloops/bloop8.png">
+  <img src="13/bloops/bloop7.png">
+  <img src="13/bloops/bloop6.png">
+  <img src="13/bloops/bloop5.png">
+  <img src="13/bloops/bloop4.png">
+  <img src="13/bloops/bloop3.png">
+  <img src="13/bloops/bloop2.png">
+  <img src="13/bloops/bloop1.png">
+  <img src="13/bloops/bloop0.png">
+
+  <video src="12/output.m4v" autoplay loop muted></video>
+  <img src="12/bloops/bloop0.png">
+  <img src="12/bloops/bloop1.png">
+  <img src="12/bloops/bloop2.png">
+  <img src="12/bloops/bloop3.png">
+
+  <img src="10/bloops/bloop-10.3.png">
+  <img src="8/bloops/wp-bloop-0.png">
+  <img src="8/bloops/wp-bloop-3.png">
+  <img src="8/bloops/bloop-4.png">
+
+  <img src="7/selection/bloop-0.png">
+  <img src="7/selection/bloop-4.png">
+  <img src="7/selection/bloop-7.png">
+  <img src="7/selection/0.png">
+
+  <img src="5/bloops/single.gif">
+  <img src="5/bloops/mult.gif">
+  <img src="5/bloops/insight.gif">
 
   <img src="4/selection/1.png">
   <img src="4/selection/2.png">
@@ -44,20 +112,58 @@
   <img src="4/selection/7.png">
   <img src="4/selection/8.png">
   <img src="4/bloops/bloop-17.png">
-  
-  <img src="5/bloops/single.gif">
-  <img src="5/bloops/mult.gif">
-  <img src="5/bloops/insight.gif">
 
-  <img src="7/selection/bloop-0.png">
-  <img src="7/selection/bloop-4.png">
-  <img src="7/selection/bloop-7.png">
-  <img src="7/selection/0.png">
+  <img src="3/selection/0.gif">
+  <img src="3.1/bloops/bloop-1.png">
+  <img src="3/selection/2.png">
+  <img src="3.1/bloops/bloop-2.png">
+  <img src="3.1/bloops/bloop-7.png">
 
-  <img src="8/bloops/wp-bloop-0.png">
-  <img src="8/bloops/wp-bloop-3.png">
-  <img src="8/bloops/bloop-4.png">
+  <img src="2/bloop-2.png">
+  <img src="2/bloop-4.png">
+  <img src="2/art.png">
 
-  <img src="10/bloops/bloop-10.3.png">
+  <img src="twitch-selection/0.jpg">
+  <script>
+    let imgBeingPreviewed = null
+
+    const canvas = document.createElement('canvas')
+    canvas.width = canvas.height = 1
+    const ctx = canvas.getContext('2d')
+    let backdropColor = 'white'
+
+    function setBackdropColor (img) {
+      img.crossOrigin = 'Anonymous'
+      ctx.drawImage(img, 0, 0)
+      const px = ctx.getImageData(0,0,1,1)
+      backdropColor = `rgba(${px.data.join(',')})`
+      backdrop.style.backgroundColor = backdropColor
+    }
+
+    function previewImage (event) {
+      const img = event.target
+      img.classList.toggle('previewing')
+      imgBeingPreviewed = img.classList.contains('previewing') && img
+      document.body.classList.toggle('previewing', imgBeingPreviewed)
+      if (imgBeingPreviewed) {
+        setBackdropColor(img)
+      }
+    }
+
+    document.querySelectorAll('img, video').forEach(img => {
+      img.onclick = img.ontouch = img.ontouchend = previewImage
+      img.addEventListener('touchend', previewImage)
+    })
+
+    document.addEventListener('touchmove', ev => {
+      if (imgBeingPreviewed) ev.preventDefault()
+    })
+
+    function closePreview () {
+      previewImage({ target: imgBeingPreviewed })
+    }
+    backdrop.onclick = closePreview
+    backdrop.addEventListener('touchend', closePreview)
+  </script>
 </body>
 </html>
