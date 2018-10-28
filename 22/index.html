@@ -1,0 +1,347 @@
+<!doctype html5>
+
+<head>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dg.ac {
+      z-index: 2 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript" src="../dat.gui.min.js"></script>
+  <script type="text/javascript" src="../download.js"></script>
+  <script type="text/javascript" src="../libs/CCapture.all.min.js"></script>
+  <script type="text/javascript" src="../libs/memoize.js"></script>
+  <script src="volume-meter.js"></script>
+  <script>
+    "use strict"
+
+    var capturer = new CCapture({
+      framerate: 60,
+      verbose: true,
+      format: 'gif',
+      workersPath: '../libs/',
+      quality: 100,
+      timeLimit: 60
+    })
+
+    let width, height
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    document.body.appendChild(canvas)
+    const { random, round, abs, floor, min, max, PI,
+      asin, acos, tan, atan,
+      sqrt, pow } = Math
+
+    // const cos = memoize(Math.cos)
+    // const sin = memoize(Math.sin)
+    const { cos, sin } = Math // actually faster lol
+
+    const start = Date.now()
+    let counter
+    let last = Date.now()
+
+    function getRandomColor() {
+      return '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6)
+    }
+
+    function ffor00() {
+      return round(random()) ? 'ff' : '00'
+    }
+
+    function getRandomNeonColor() {
+      return `#${ffor00()}${ffor00()}${ffor00()}`
+    }
+
+    /*
+    window.onresize = function () {
+        width = window.innerWidth
+        height = window.innerHeight
+        canvas.width = width * 2
+        canvas.height = height * 2
+        ctx.scale(2, 2)
+    }
+    window.onresize()
+    */
+
+    width = 1000
+    height = 1000
+    width = height = 500
+    /*
+    width = window.innerWidth
+    height = window.innerHeight
+    /**/
+    canvas.style.width = width
+    canvas.style.height = height
+    const dpx = 2 //window.devicePixelRatio
+    canvas.width = width * dpx
+    canvas.height = height * dpx
+    ctx.scale(dpx, dpx)
+  </script>
+  <!--<script src="render.js"></script>-->
+  <script>
+    const FPS_ENABLED = false
+    function renderFPS() {
+      ctx.clearRect(0, 0, 50, 20)
+      ctx.fillStyle = 'blue'
+      ctx.fillText(delta, 20, 20)
+    }
+
+
+    function loop() {
+      window.init && (init(), window.init = null)
+      requestAnimationFrame(loop)
+      counter = Date.now() - start
+      delta = Date.now() - last
+      last = Date.now()
+      window.render && render()
+      if (FPS_ENABLED) renderFPS()
+    }
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0, 0, width, height)
+    requestAnimationFrame(loop)
+
+
+    // screenshot generator
+    document.addEventListener('keypress', function (e) {
+      console.log(e)
+      if (e.code === "Space") screenshot()
+    })
+
+    let n = 0
+    if (localStorage.nextBloopId == null) {
+      localStorage.nextBloopId = 0
+    }
+    function screenshot() {
+      download(canvas.toDataURL(), `bloop${localStorage.nextBloopId++}.png`, "image/png")
+    }
+
+    let oldScale = CanvasRenderingContext2D.prototype.scale
+    CanvasRenderingContext2D.prototype.scale = function (x, y) {
+      if (y === undefined) y = x
+      oldScale.call(this, x, y)
+    }
+
+    function getImageData(img) {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0)
+      return ctx.getImageData(0, 0, canvas.width, canvas.height)
+    }
+
+    function sleep(n) {
+      return new Promise(function (resolve) {
+        setTimeout(resolve, n)
+      })
+    }
+
+    function strokeLine(x0, y0, x1, y1) {
+      ctx.beginPath()
+      ctx.moveTo(x0, y0)
+      ctx.lineTo(x1, y1)
+      ctx.stroke()
+    }
+
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+
+    const params = {
+    }
+    const p = params
+
+    let done = false
+
+    function init() {
+    }
+    function render() {
+    }
+
+    // monkeypatch Web Audio
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+    // grab an audio context
+    audioContext = new AudioContext();
+
+    // Attempt to get audio input
+    try {
+      // monkeypatch getUserMedia
+      navigator.getUserMedia =
+        navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia;
+
+      // ask for an audio input
+      navigator.getUserMedia(
+        {
+          "audio": {
+            "mandatory": {
+              "googEchoCancellation": "false",
+              "googAutoGainControl": "false",
+              "googNoiseSuppression": "false",
+              "googHighpassFilter": "false"
+            },
+            "optional": []
+          },
+        }, gotStream, didntGetStream);
+    } catch (e) {
+      alert('getUserMedia threw exception :' + e);
+    }
+
+    function didntGetStream() {
+      alert('Stream generation failed.');
+    }
+
+    var mediaStreamSource = null;
+
+    let spitting = false
+    let SPIT_THRESHOLD = 0.07
+    let spitEnd = Date.now()
+    function gotStream(stream) {
+      console.log('gotStream')
+      // Create an AudioNode from the stream.
+
+
+      mediaStreamSource = audioContext.createMediaStreamSource(stream);
+
+      // Create a new volume meter and connect it.
+      meter = createAudioMeter(audioContext);
+      mediaStreamSource.connect(meter);
+
+      // kick off the visual updating
+      drawLoop();
+    }
+
+    let playerIdle = new Image ()
+    playerIdle.src = 'sprite/player.png'
+
+    let playerSpitting = new Image ()
+    playerSpitting.src = 'sprite/player-spit.png'
+
+    let spits = 0
+
+    let bocatas = [0,1,2,3,4,5,6,7].map(n => {
+      let bocata = new Image ()
+      bocata.src = `sprite/bocata-${n}.png`
+      return bocata
+    })
+
+    function drawLoop () {
+      requestAnimationFrame(drawLoop)
+      // console.log(meter.volume)
+
+      ctx.save()
+      ctx.translate(width/2 - 70, height/2 - 150)
+
+      if (!spitting) {
+        ctx.drawImage(playerIdle, 0, 0)
+        if (meter.volume > SPIT_THRESHOLD && Date.now() - spitEnd > 300) {
+          spitting = true
+          console.log('spit')
+        }
+      } else {
+        ctx.drawImage(playerSpitting, 0, 0)
+        if (meter.volume < SPIT_THRESHOLD) {
+          spitting = false
+          console.log('end spit')
+          spitEnd = Date.now()
+          spits++
+          spits = Math.min(spits, 7)
+        }
+      }
+
+      ctx.drawImage(bocatas[spits], 0, 200)
+
+      ctx.restore()
+    }
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    const gui = new dat.GUI()
+    for (let param in params) {
+      const value = params[param]
+      const isColor = (typeof value === 'string' && value[0] === '#')
+      if (isColor) gui.addColor(params, param)
+      else gui.add(params, param).listen()
+    }
+  </script>
+</body>
