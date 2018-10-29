@@ -97,7 +97,7 @@ function renderFPS () {
 
 function loop () {
     window.init && (init(), window.init = null)
-    // requestAnimationFrame(loop)
+    requestAnimationFrame(loop)
     counter = Date.now() - start
     delta = Date.now() - last
     last = Date.now()
@@ -284,8 +284,7 @@ async function render () {
             ctx.fill()
             angle -= inc
         }
-        console.log(k)
-        await sleep(25)
+        // await sleep(25)
         // }
         ctx.restore()
     }

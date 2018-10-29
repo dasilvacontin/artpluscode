@@ -25,9 +25,11 @@
 <script>
 
 var capturer = new CCapture({
-    framerate: 60,
+    // framerate: 60,
+    framerate: 5,
     verbose: true,
-    format: 'webm',
+    format: 'gif',
+    workersPath: '../libs/',
     quality: 100
 })
 
@@ -201,7 +203,7 @@ const params = {
     // detail: 10
     // detail: 70
     // detail: 3
-    detail: 5
+    detail: 10
 }
 const p = params
 
@@ -274,13 +276,12 @@ async function render () {
         // Date.now() is around 0.1
         // let n = k / 200 + (Date.now() / 5000)
         let n = k / 10 + delta
-        console.log('was', oldColor)
+        // n = 0
         ctx.fillStyle = getRandomNeonColor()
         while (ctx.fillStyle.toLowerCase() == '#ffffff' || ctx.fillStyle == oldColor) {
             ctx.fillStyle = getRandomNeonColor()
         }
         oldColor = ctx.fillStyle
-        console.log('chose', ctx.fillStyle)
         for (let angle = n; angle < n + PI; angle += inc) {
             const f = 1 - abs(PI/2 - (angle-n+inc))/(PI/2)
             let color = 255 - f*100
@@ -308,19 +309,22 @@ async function render () {
             ctx.fill()
             angle -= inc
         }
-        // await sleep(1)
-        for (let i = 0; i < 500/60; ++i) {
-            capturer.capture(canvas)
-        }
+        // await sleep(200)
+        capturer.capture(canvas)
+        // for (let i = 0; i < 500/60; ++i) {
+        //     capturer.capture(canvas)
+        // }
 
         }
         ctx.restore()
     }
 
-    for (let i = 0; i < 5000/60; ++i) {
+    for (let i = 0; i < 5/(1/5); ++i) {
         capturer.capture(canvas)
     }
-
+    // for (let i = 0; i < 10*1000/60; ++i) {
+    //     capturer.capture(canvas)
+    // }
     capturer.save()
     capturer.stop()
 
