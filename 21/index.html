@@ -1,0 +1,456 @@
+<!doctype html5>
+
+<head>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dg.ac {
+      z-index: 2 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript" src="../dat.gui.min.js"></script>
+  <script type="text/javascript" src="../download.js"></script>
+  <script type="text/javascript" src="../libs/CCapture.all.min.js"></script>
+  <script type="text/javascript" src="../libs/memoize.js"></script>
+  <script>
+    "use strict"
+
+    var capturer = new CCapture({
+      framerate: 60,
+      verbose: true,
+      format: 'gif',
+      workersPath: '../libs/',
+      quality: 100,
+      timeLimit: 60
+    })
+
+    let width, height
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    document.body.appendChild(canvas)
+    const { random, round, abs, floor, min, max, PI,
+      asin, acos, tan, atan,
+      sqrt, pow } = Math
+
+    // const cos = memoize(Math.cos)
+    // const sin = memoize(Math.sin)
+    const { cos, sin } = Math // actually faster lol
+
+    const start = Date.now()
+    let counter
+    let last = Date.now()
+
+    function getRandomColor() {
+      return '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6)
+    }
+
+    function ffor00() {
+      return round(random()) ? 'ff' : '00'
+    }
+
+    function getRandomNeonColor() {
+      return `#${ffor00()}${ffor00()}${ffor00()}`
+    }
+
+    /*
+    window.onresize = function () {
+        width = window.innerWidth
+        height = window.innerHeight
+        canvas.width = width * 2
+        canvas.height = height * 2
+        ctx.scale(2, 2)
+    }
+    window.onresize()
+    */
+
+    width = 1000
+    height = 1000
+    width = height = 500
+    /*
+    width = window.innerWidth
+    height = window.innerHeight
+    /**/
+    canvas.style.width = width
+    canvas.style.height = height
+    const dpx = 2 //window.devicePixelRatio
+    canvas.width = width * dpx
+    canvas.height = height * dpx
+    ctx.scale(dpx, dpx)
+  </script>
+  <!--<script src="render.js"></script>-->
+  <script>
+    const FPS_ENABLED = false
+    function renderFPS() {
+      ctx.clearRect(0, 0, 50, 20)
+      ctx.fillStyle = 'blue'
+      ctx.fillText(delta, 20, 20)
+    }
+
+
+    function loop() {
+      window.init && (init(), window.init = null)
+      requestAnimationFrame(loop)
+      counter = Date.now() - start
+      delta = Date.now() - last
+      last = Date.now()
+      window.render && render()
+      if (FPS_ENABLED) renderFPS()
+    }
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0, 0, width, height)
+    requestAnimationFrame(loop)
+
+
+    // screenshot generator
+    document.addEventListener('keypress', function (e) {
+      console.log(e)
+      if (e.code === "Space") screenshot()
+    })
+
+    let n = 0
+    if (localStorage.nextBloopId == null) {
+      localStorage.nextBloopId = 0
+    }
+    function screenshot() {
+      download(canvas.toDataURL(), `bloop${localStorage.nextBloopId++}.png`, "image/png")
+    }
+
+    let oldScale = CanvasRenderingContext2D.prototype.scale
+    CanvasRenderingContext2D.prototype.scale = function (x, y) {
+      if (y === undefined) y = x
+      oldScale.call(this, x, y)
+    }
+
+    function getImageData(img) {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0)
+      return ctx.getImageData(0, 0, canvas.width, canvas.height)
+    }
+
+    function sleep(n) {
+      return new Promise(function (resolve) {
+        setTimeout(resolve, n)
+      })
+    }
+
+    function strokeLine (x0,y0, x1,y1) {
+      ctx.beginPath()
+      ctx.moveTo(x0,y0)
+      ctx.lineTo(x1,y1)
+      ctx.stroke()
+    }
+
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+
+    const params = {
+      divisions: 3,
+      spacing: 30,
+      animDuration: 1000,
+      sqEdge: 30,
+      fontSize: 12,
+      labelLeftMargin: 3
+    }
+    const p = params
+
+    let done = false
+
+    function init () {
+      ctx.fillStyle = 'white'
+      ctx.fillRect(0,0,width,height)
+    }
+
+    let lastT = null
+    let delta = null
+    let timer = 0
+    let lap = 0
+
+    function render() {
+      const {sqEdge } = p
+
+      ctx.fillStyle = 'white'
+      ctx.globalAlpha = 0.1
+      ctx.fillRect(0,0,width,height)
+      ctx.globalAlpha = 1
+
+      const frameWidth = (width - (p.divisions - 1)*p.spacing) / p.divisions
+      const frameHeight = (height - (p.divisions - 1)*p.spacing) / p.divisions
+
+      let currentT = Date.now()
+      if (lastT) {
+        delta = currentT - lastT
+        timer += delta
+      }
+      if (timer > p.animDuration) {
+        timer -= p.animDuration
+        lap++
+        if (lap === 3) capturer.start()
+        if (lap === 4) {
+          capturer.stop()
+          capturer.save()
+        }
+      }
+      lastT = currentT
+      const t = (timer % p.animDuration) / p.animDuration
+
+      ctx.font = `${p.fontSize}px monospace`
+      ctx.textBaseline = 'bottom'
+      ctx.save()
+      for (let i = 0; i < p.divisions; ++i) {
+        ctx.save()
+        for (let j = 0; j < p.divisions; ++j) {
+          ctx.fillStyle = 'lightgray'
+          // ctx.fillRect(0, 0, frameWidth, frameHeight)
+
+          ctx.fillStyle = 'blue'
+          ctx.strokeStyle = 'white'
+          ctx.setLineDash([5, 5])
+          const frameIndex = i*p.divisions + j
+          switch (frameIndex) {
+
+            case 0:
+              ctx.fillText('translateX', p.labelLeftMargin, frameHeight)
+              strokeLine(
+                sqEdge/2, sqEdge/2,
+                frameWidth - sqEdge/2, sqEdge/2
+              )
+              ctx.fillRect(
+                (frameWidth - sqEdge) * t,
+                0,
+                sqEdge,
+                sqEdge
+              )
+              break
+
+            case 1:
+              ctx.fillText('translateY', p.labelLeftMargin, frameHeight)
+              strokeLine(
+                sqEdge/2, sqEdge/2,
+                sqEdge/2, frameHeight - sqEdge/2
+              )
+              ctx.fillRect(
+                0,
+                (frameHeight - p.sqEdge) * t,
+                sqEdge,
+                sqEdge
+              )
+              break
+
+            case 2:
+              ctx.fillText('translateX+Y', p.labelLeftMargin, frameHeight)
+              strokeLine(
+                sqEdge/2, sqEdge/2,
+                frameWidth - sqEdge/2, frameHeight - sqEdge/2
+              )
+              ctx.fillRect(
+                (frameWidth - p.sqEdge) * t,
+                (frameHeight - p.sqEdge) * t,
+                sqEdge,
+                sqEdge
+              )
+              break
+
+            case 3:
+              ctx.fillText('scaleX', p.labelLeftMargin, frameHeight)
+              ctx.fillRect(
+                0,
+                0,
+                frameWidth*t,
+                sqEdge
+              )
+              break
+
+            case 4:
+              ctx.fillText('scaleY', p.labelLeftMargin, frameHeight)
+              ctx.fillRect(
+                0,
+                0,
+                sqEdge,
+                frameHeight*t
+              )
+              break
+
+            case 5:
+              ctx.fillText('scaleX+Y', p.labelLeftMargin, frameHeight)
+              ctx.fillRect(
+                0,
+                0,
+                frameWidth*t,
+                frameHeight*t
+              )
+              break
+
+            case 6:
+              ctx.fillText('rotate', p.labelLeftMargin, frameHeight)
+              ctx.save()
+              ctx.translate(frameWidth/2, frameHeight/2)
+              ctx.rotate(t*Math.PI*2/4)
+              ctx.fillRect(
+                -sqEdge/2,
+                -sqEdge/2,
+                sqEdge,
+                sqEdge
+              )
+              ctx.restore()
+              break
+
+            case 7:
+              {
+                ctx.fillText('rotate+scale', 0, frameHeight)
+                ctx.save()
+                ctx.translate(frameWidth/2, frameHeight/2)
+                ctx.rotate(t*Math.PI*2/4)
+                const sqWidth0 = sqEdge
+                const sqWidth1 = frameWidth
+                const sqWidth = sqWidth0 + (sqWidth1-sqWidth0)*t
+                ctx.fillRect(
+                  -sqWidth/2,
+                  -sqWidth/2,
+                  sqWidth,
+                  sqWidth
+                )
+                ctx.restore()
+                break
+              }
+
+          case 8:
+            ctx.fillText('translate+', 0, frameHeight - 20)
+            ctx.fillText('rotate+', 0, frameHeight - 10)
+            ctx.fillText('scale', 0, frameHeight)
+            strokeLine(
+              sqEdge/2, sqEdge/2,
+              frameWidth/2, frameHeight - sqEdge/2
+            )
+            ctx.save()
+            const pos0 = { x: sqEdge/2, y: sqEdge/2 }
+            const pos1 = { x: frameWidth/2, y: frameHeight - sqEdge/2 }
+            ctx.translate(
+              pos0.x + (pos1.x-pos0.x)*t,
+              pos0.y + (pos1.y-pos0.y)*t
+            )
+            ctx.rotate(t*Math.PI*2/4)
+            const sqWidth0 = sqEdge
+            const sqWidth1 = frameWidth
+            const sqWidth = sqWidth0 + (sqWidth1-sqWidth0)*t
+            ctx.fillRect(
+              -sqEdge/2,
+              -sqWidth/2,
+              sqEdge,
+              sqWidth
+            )
+            ctx.restore()
+            break
+          }
+
+          ctx.translate(frameWidth + p.spacing, 0)
+        }
+        ctx.restore()
+        ctx.translate(0, frameHeight + p.spacing)
+      }
+      ctx.restore()
+
+      capturer.capture(canvas)
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      // ki = window.innerWidth/2 - e.pageX
+    })
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'n') {
+        p.scale += Math.random()*0.1//0.001
+      }
+    })
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    const gui = new dat.GUI()
+    for (let param in params) {
+      const value = params[param]
+      const isColor = (typeof value === 'string' && value[0] === '#')
+      if (isColor) gui.addColor(params, param)
+      else gui.add(params, param).listen()
+    }
+  </script>
+</body>

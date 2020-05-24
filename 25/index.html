@@ -1,0 +1,301 @@
+<!doctype html5>
+
+<head>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      padding: 0;
+      margin: 0;
+      background: #fafafa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    canvas {
+      /* border: 1px solid black; */
+    }
+
+    .dg.ac {
+      z-index: 2 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript" src="../dat.gui.min.js"></script>
+  <script type="text/javascript" src="../download.js"></script>
+  <script type="text/javascript" src="../libs/CCapture.all.min.js"></script>
+  <script type="text/javascript" src="../libs/memoize.js"></script>
+  <script>
+    "use strict"
+
+    var capturer = new CCapture({
+      framerate: 60,
+      verbose: true,
+      format: 'gif',
+      workersPath: '../libs/',
+      quality: 100,
+      timeLimit: 60
+    })
+
+    let width, height
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    document.body.appendChild(canvas)
+    const { random, round, abs, floor, min, max, PI,
+      asin, acos, tan, atan,
+      sqrt, pow } = Math
+
+    // const cos = memoize(Math.cos)
+    // const sin = memoize(Math.sin)
+    const { cos, sin } = Math // actually faster lol
+
+    const start = Date.now()
+    let counter
+    let last = Date.now()
+
+    function getRandomColor() {
+      return '#' + (0x1000000 + (Math.random()) * 0xffffff).toString(16).substr(1, 6)
+    }
+
+    function ffor00() {
+      return round(random()) ? 'ff' : '00'
+    }
+
+    function getRandomNeonColor() {
+      return `#${ffor00()}${ffor00()}${ffor00()}`
+    }
+
+    /*
+    window.onresize = function () {
+        width = window.innerWidth
+        height = window.innerHeight
+        canvas.width = width * 2
+        canvas.height = height * 2
+        ctx.scale(2, 2)
+    }
+    window.onresize()
+    */
+
+    width = 1000
+    height = 1000
+    width = height = 500
+
+    canvas.style.width = width
+    canvas.style.height = height
+    const dpx = 2 //window.devicePixelRatio
+    canvas.width = width * dpx
+    canvas.height = height * dpx
+    ctx.scale(dpx, dpx)
+  </script>
+  <!--<script src="render.js"></script>-->
+  <script>
+    const FPS_ENABLED = false
+    function renderFPS() {
+      ctx.clearRect(0, 0, 50, 20)
+    }
+
+
+    function loop() {
+      window.init && (init(), window.init = null)
+      requestAnimationFrame(loop)
+      counter = Date.now() - start
+      delta = Date.now() - last
+      last = Date.now()
+      window.render && render()
+      if (FPS_ENABLED) renderFPS()
+    }
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0, 0, width, height)
+    requestAnimationFrame(loop)
+
+
+    // screenshot generator
+    document.addEventListener('keypress', function (e) {
+      console.log(e)
+      if (e.code === "Space") screenshot()
+    })
+
+    let n = 0
+    if (localStorage.nextBloopId == null) {
+      localStorage.nextBloopId = 0
+    }
+    function screenshot() {
+      download(canvas.toDataURL(), `bloop${localStorage.nextBloopId++}.png`, "image/png")
+    }
+
+    let oldScale = CanvasRenderingContext2D.prototype.scale
+    CanvasRenderingContext2D.prototype.scale = function (x, y) {
+      if (y === undefined) y = x
+      oldScale.call(this, x, y)
+    }
+
+    function getImageData(img) {
+      const canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0)
+      return ctx.getImageData(0, 0, canvas.width, canvas.height)
+    }
+
+    function sleep(n) {
+      return new Promise(function (resolve) {
+        setTimeout(resolve, n)
+      })
+    }
+
+    function strokeLine (x0,y0, x1,y1) {
+      ctx.beginPath()
+      ctx.moveTo(x0,y0)
+      ctx.lineTo(x1,y1)
+      ctx.stroke()
+    }
+
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    const params = {
+      dotCount: 11,
+      dotSpacing: 35,
+      dotRadius: 4,
+      dotCenterRadius: 7,
+      // dotColor: '#ccccff',
+      dotColor: '#b4f25a',
+      intervalBetweenStrokes: 1
+    }
+    const p = params
+
+    function dist (p1, p2) {
+      return Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2)
+    }
+
+    let currentI
+    let currentJ
+
+    const state = []
+    const path = []
+    let timer
+
+    function render() {
+      let edge = 100
+      ctx.fillStyle = 'black'
+      ctx.fillStyle = 'white'
+      ctx.fillRect(0,0,width,height)
+      // for (let x = Math.floor(width*9/19); x <= Math.floor(width*10/19); ++x) {
+      for (let x = 0; x < width; ++x) {
+        for (let y = 0; y < height; ++y) {
+          /*
+          ctx.globalAlpha = (x + y) / (width - 1 + height - 1)
+          ctx.globalAlpha = y / (height - 1)
+          ctx.globalAlpha *= ctx.globalAlpha
+          ctx.globalAlpha *= ctx.globalAlpha
+          if (Math.random() > ctx.globalAlpha) continue
+          if (ctx.globalAlpha > 0.98) {
+            ctx.fillStyle = 'white'
+          } else {
+            ctx.fillStyle = '#ff00ff'
+          }
+          ctx.fillRect(x, y/2, 1, 1)
+          */
+          ctx.fillStyle = '#ff00ff'
+          ctx.globalAlpha = (x + y) / (width - 1 + height - 1)
+          if (Math.random() > ctx.globalAlpha*ctx.globalAlpha) continue
+          // ctx.fillRect(x, y, 1, 1)
+          ctx.globalAlpha = 1
+          ctx.beginPath()
+          ctx.arc(x, y, 1, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      }
+      render = undefined
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      // ki = window.innerWidth/2 - e.pageX
+      mouse = { x: e.pageX, y: e.pageY }
+    })
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'n') {
+      }
+    })
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+    const gui = new dat.GUI()
+    for (let param in params) {
+      const value = params[param]
+      const isColor = (typeof value === 'string' && value[0] === '#')
+      if (isColor) gui.addColor(params, param)
+      else gui.add(params, param).listen()
+    }
+  </script>
+</body>
